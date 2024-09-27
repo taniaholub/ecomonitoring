@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Таблиця Викидів</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Таблиця викидів шкідливих речовин</h1>
+
+    <table id="emissionsTable">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Назва об'єкта</th>
+          <th>Назва забруднюючої речовини</th>
+          <th>Рік звітності</th>
+          <th>Тип викидів</th>
+          <th>Об'єм викидів т/рік</th>
+          <th>Масова витрата, г/год.</th>
+          <!-- <th>Статус перевищення викидів</th> -->
+          <th>Ставка податку(повітря), грн/т</th>
+          <th>Ставка податку(вода), грн/т</th>
+          <th>Сума податку, грн</th>
+          <th>Видалити</th>
+          <th>Редагувати</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <label>Заповніть поля:</label>
+    <input type="text" id="object-name-input" placeholder="Назва об'єкта" />
+    <input type="text"id="pollutant-name-input" placeholder="Назва забруднюючої речовини" />
+    <input type="text" id="report-year-input" placeholder="Рік звітності" />
+    <label for="emission-type-input">Тип викидів:</label>
+    <select id="emission-type-input">
+      <option value="повітря">Повітря</option>
+      <option value="вода">Вода</option>
+    </select>
+    <input type="number" id="emission-volume-input" placeholder="Об'єм викидів"/>
+    <input type="number" id="mass-flow-input" placeholder="Масова витрата" />
+    <input type="number" id="air-tax-rate-input" placeholder="Ставка податку(повітря)"/>
+    <input type="number" id="water-tax-rate-input"  placeholder="Ставка податку(вода)" />
+    <input type="number" id="tax-sum-input" placeholder="Сума податку" />
+    <button id="add-info-btn">Додати інформацію</button>
+
+    <section hidden id="update-row-input">
+      <button id="update-row-btn">Оновити</button>
+    </section>
+
+    <br /><br /><br />
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Введіть назву підприємства або речовини"
+    />
+    <button id="search-btn">Пошук</button>
+    
+    <br /><br /><br />
+    
+    <button id="sort-year-btn">Сортувати за роком</button>
+    <button id="sort-emission-btn">Сортувати за об'ємом викидів</button>
+    <button id="sort-tax-btn">Сортувати за сумою податку</button>
+    
+    <button id="reset-btn">Скинути</button>
+    
+    <h2>Таблиця Забруднюючих Речовин</h2>
+    <table id="pollutantTable">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Назва речовини</th>
+          <th>Клас небезпеки</th>
+          <th>ГДК</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <h2>Таблиця Підприємств</h2>
+    <table id="enterpriseTable">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Назва підприємства</th>
+          <th>Адреса</th>
+          <th>Тип діяльності</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script src="script.js"></script>
+  </body>
+</html>
