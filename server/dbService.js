@@ -322,12 +322,13 @@ class DbService {
         }
 
         const query = `
-          SELECT r.*, e.EnterpriseName, p.PollutantName 
-          FROM Report r
-          JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
-          JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
-          ORDER BY ${field} ASC;
-        `;
+  SELECT r.*, e.EnterpriseName, p.PollutantName 
+  FROM Report r
+  JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
+  JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
+  ORDER BY CAST(${field} AS DECIMAL) ASC;
+`;
+
         connection.query(query, (err, results) => {
           if (err) reject(new Error(err.message));
           resolve(results);

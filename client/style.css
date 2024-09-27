@@ -1,7 +1,15 @@
+h1{
+  background-color: #204120; 
+  border: 2px solid #051b02; 
+  padding: 40px; 
+  text-align: center; 
+  padding: 0;
+  color: #eceeed;
+}
 table {
-  display: block;
+  margin: 0 auto; 
   border-collapse: collapse;
-  margin: 40px 40px;
+  width: 50%;
 }
 
 th,
@@ -60,4 +68,29 @@ h2 {
 #editTable {
   display: block;
   margin: 20px auto;
+}
+
+select {
+  display: block;
+  margin-bottom: 5px;
+  padding: 10px;
+  width: 70%;
+  box-sizing: border-box;
+  background-color: white;
+  border: 1px solid rgb(144, 144, 144);
+  font-size: 14px;
+  color: #333;
+}
+
+select:focus {
+  outline: none;
+  border-color: #45a049;
+}
+
+label {
+  font-weight: normal;
+  display: block;
+  margin-top: 10px;
+  text-align: left;
+  width: 70%;
 }
