@@ -17,6 +17,7 @@ function loadEnterprises() {
     .then((response) => response.json())
     .then((data) => {
       const select = document.getElementById("object-name-input");
+      select.innerHTML = '<option value="">Виберіть підприємство</option>';
       data.forEach((enterprise) => {
         const option = document.createElement("option");
         option.value = enterprise.EnterpriseName;
@@ -26,11 +27,13 @@ function loadEnterprises() {
     });
 }
 
+
 function loadPollutants() {
   fetch("http://localhost:5000/getPollutants")
     .then((response) => response.json())
     .then((data) => {
       const select = document.getElementById("pollutant-name-input");
+      select.innerHTML = '<option value="">Виберіть речовину</option>';
       data.forEach((pollutant) => {
         const option = document.createElement("option");
         option.value = pollutant.PollutantName;
@@ -39,6 +42,7 @@ function loadPollutants() {
       });
     });
 }
+
 
 document
   .querySelector("table tbody")
@@ -126,6 +130,11 @@ function handleEditRow(id) {
 }
 
 updateBtn.onclick = function () {
+
+  if (!validateInputs()) {
+    return;
+  }
+  
   const updateInfoInput = {
     objectName: document.querySelector("#object-name-input").value,
     pollutantName: document.querySelector("#pollutant-name-input").value,
@@ -212,9 +221,57 @@ function updateRowInTable(id, info) {
 }
 
 // add
+
+function validateInputs() {
+  const objectNameInput = document.querySelector("#object-name-input").value;
+  const pollutantNameInput = document.querySelector("#pollutant-name-input").value;
+  const reportYearInput = document.querySelector("#report-year-input").value;
+  const emissionVolumeInput = document.querySelector("#emission-volume-input").value;
+  const massFlowInput = document.querySelector("#mass-flow-input").value;
+  
+  const currentYear = new Date().getFullYear();
+
+  // Перевірка: поле з підприємством не може бути порожнім
+  if (!objectNameInput) {
+    alert("Будь ласка, виберіть підприємство.");
+    return false;
+  }
+
+  // Перевірка: поле з речовиною не може бути порожнім
+  if (!pollutantNameInput) {
+    alert("Будь ласка, виберіть забруднюючу речовину.");
+    return false;
+  }
+
+  // Перевірка: рік звітності не може бути більшим за поточний рік
+  if (parseInt(reportYearInput, 10) > currentYear) {
+    alert(`Рік звітності не може бути більшим за ${currentYear}`);
+    return false;
+  }
+
+  // Перевірка: об'єм викидів повинен бути більше нуля
+  if (parseFloat(emissionVolumeInput) <= 0) {
+    alert("Об'єм викидів повинен бути більше нуля.");
+    return false;
+  }
+
+  // Перевірка: масова витрата повинна бути більше нуля
+  if (parseFloat(massFlowInput) <= 0) {
+    alert("Масова витрата повинна бути більше нуля.");
+    return false;
+  }
+
+  // Якщо всі перевірки пройдені
+  return true;
+}
+
 const addBtn = document.querySelector("#add-info-btn");
 
 addBtn.onclick = function () {
+  if (!validateInputs()) {
+    return;
+  }
+
   // Отримати значення з нових полів
   const objectNameInput = document.querySelector("#object-name-input"); // Назва об'єкта
   const pollutantNameInput = document.querySelector("#pollutant-name-input"); // Назва забруднюючої речовини
