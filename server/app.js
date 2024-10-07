@@ -52,6 +52,31 @@ app.post("/insert", (req, res) => {
     });
 });
 
+app.post("/addEnterprise", (req, res) => {
+  const { name, address, activityType } = req.body;
+  const db = DbService.getDbServiceInstance();
+
+  db.addEnterprise({ name, address, activityType })
+    .then(() => res.json({ success: true }))
+    .catch((err) => {
+      console.error("Error adding enterprise:", err);
+      res.status(500).json({ success: false, message: "Failed to add enterprise" });
+    });
+});
+
+app.post("/addPollutant", (req, res) => {
+  const { name, hazardClass, mpc } = req.body;
+  const db = DbService.getDbServiceInstance();
+
+  db.addPollutant({ name, hazardClass, mpc })
+    .then(() => res.json({ success: true }))
+    .catch((err) => {
+      console.error("Error adding pollutant:", err);
+      res.status(500).json({ success: false, message: "Failed to add pollutant" });
+    });
+});
+
+
 // Отримання всіх даних
 app.get("/getAll", (req, res) => {
   const db = DbService.getDbServiceInstance();
@@ -154,6 +179,43 @@ app.delete("/delete/:id", (request, response) => {
         .json({ success: false, message: "Error deleting row" });
     });
 });
+
+app.delete("/deleteEnterprise/:id", (req, res) => {
+  const { id } = req.params;
+  const db = DbService.getDbServiceInstance();
+
+  db.deleteEnterpriseById(id)
+    .then((result) => {
+      if (result) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ success: false, message: "Enterprise not found" });
+      }
+    })
+    .catch((err) => {
+      console.error("Error in /deleteEnterprise route:", err);
+      res.status(500).json({ success: false, message: "Error deleting enterprise" });
+    });
+});
+
+app.delete("/deletePollutant/:id", (req, res) => {
+  const { id } = req.params;
+  const db = DbService.getDbServiceInstance();
+
+  db.deletePollutantById(id)
+    .then((result) => {
+      if (result) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ success: false, message: "Pollutant not found" });
+      }
+    })
+    .catch((err) => {
+      console.error("Error in /deletePollutant route:", err);
+      res.status(500).json({ success: false, message: "Error deleting pollutant" });
+    });
+});
+
 
 // -------- Запуск сервера -------- //
 app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));

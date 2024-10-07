@@ -27,7 +27,6 @@ function loadEnterprises() {
     });
 }
 
-
 function loadPollutants() {
   fetch("http://localhost:5000/getPollutants")
     .then((response) => response.json())
@@ -42,7 +41,6 @@ function loadPollutants() {
       });
     });
 }
-
 
 document
   .querySelector("table tbody")
@@ -130,11 +128,10 @@ function handleEditRow(id) {
 }
 
 updateBtn.onclick = function () {
-
   if (!validateInputs()) {
     return;
   }
-  
+
   const updateInfoInput = {
     objectName: document.querySelector("#object-name-input").value,
     pollutantName: document.querySelector("#pollutant-name-input").value,
@@ -163,7 +160,17 @@ updateBtn.onclick = function () {
     .then((data) => {
       if (data.success) {
         updateRowInTable(id, updateInfoInput);
-        clearInputFields();
+        clearSpecificInputs([
+          "object-name-input",
+          "pollutant-name-input",
+          "report-year-input",
+          "emission-type-input",
+          "emission-volume-input",
+          "mass-flow-input",
+          "air-tax-rate-input",
+          "water-tax-rate-input",
+          "tax-sum-input",
+        ]);
         document.querySelector("#update-row-input").hidden = true;
       } else {
         alert("Failed to update: " + data.message);
@@ -191,44 +198,48 @@ function updateRowInTable(id, info) {
   }
 }
 
-// функція для очищення полів вводу
-function clearInputFields() {
-  document.querySelector("#object-name-input").value = "";
-  document.querySelector("#pollutant-name-input").value = "";
-  document.querySelector("#report-year-input").value = "";
-  document.querySelector("#emission-type-input").value = "";
-  document.querySelector("#emission-volume-input").value = "";
-  document.querySelector("#mass-flow-input").value = "";
-  document.querySelector("#air-tax-rate-input").value = "";
-  document.querySelector("#water-tax-rate-input").value = "";
-  document.querySelector("#tax-sum-input").value = "";
+// Функція для очищення всіх полів форми
+function clearFormInputs(formId) {
+  const form = document.getElementById(formId);
+  if (form) {
+    const inputs = form.querySelectorAll("input, select, textarea");
+    inputs.forEach((input) => {
+      if (input.type === "checkbox" || input.type === "radio") {
+        input.checked = false;
+      } else {
+        input.value = "";
+      }
+    });
+  }
 }
 
-// Функція для оновлення рядка в таблиці
-function updateRowInTable(id, info) {
-  const row = document.querySelector(`button[data-id='${id}']`).closest("tr");
-  if (row) {
-    row.children[1].textContent = info.objectName;
-    row.children[2].textContent = info.pollutantName;
-    row.children[3].textContent = info.reportYear;
-    row.children[4].textContent = info.emissionType;
-    row.children[5].textContent = info.emissionVolume;
-    row.children[6].textContent = info.massFlow;
-    row.children[7].textContent = info.airTaxRate;
-    row.children[8].textContent = info.waterTaxRate;
-    row.children[9].textContent = info.taxSum;
-  }
+// Функція для очищення конкретних полів за їх ідентифікаторами
+function clearSpecificInputs(inputIds) {
+  inputIds.forEach((id) => {
+    const input = document.getElementById(id);
+    if (input) {
+      if (input.type === "checkbox" || input.type === "radio") {
+        input.checked = false;
+      } else {
+        input.value = "";
+      }
+    }
+  });
 }
 
 // add
 
 function validateInputs() {
   const objectNameInput = document.querySelector("#object-name-input").value;
-  const pollutantNameInput = document.querySelector("#pollutant-name-input").value;
+  const pollutantNameInput = document.querySelector(
+    "#pollutant-name-input"
+  ).value;
   const reportYearInput = document.querySelector("#report-year-input").value;
-  const emissionVolumeInput = document.querySelector("#emission-volume-input").value;
+  const emissionVolumeInput = document.querySelector(
+    "#emission-volume-input"
+  ).value;
   const massFlowInput = document.querySelector("#mass-flow-input").value;
-  
+
   const currentYear = new Date().getFullYear();
 
   // Перевірка: поле з підприємством не може бути порожнім
@@ -272,42 +283,30 @@ addBtn.onclick = function () {
     return;
   }
 
-  // Отримати значення з нових полів
-  const objectNameInput = document.querySelector("#object-name-input"); // Назва об'єкта
-  const pollutantNameInput = document.querySelector("#pollutant-name-input"); // Назва забруднюючої речовини
-  const reportYearInput = document.querySelector("#report-year-input"); // Рік звітності
-  const emissionTypeInput = document.querySelector("#emission-type-input"); // Тип викидів
-  const emissionVolumeInput = document.querySelector("#emission-volume-input"); // Об'єм викидів
-  const massFlowInput = document.querySelector("#mass-flow-input"); // Масова витрата
-  const airTaxRateInput = document.querySelector("#air-tax-rate-input"); // Ставка податку(повітря)
-  const waterTaxRateInput = document.querySelector("#water-tax-rate-input"); // Ставка податку(вода)
-  const taxSumInput = document.querySelector("#tax-sum-input"); // Сума податку
-
-  // Зібрати дані в об'єкт
   const info = {
-    objectName: objectNameInput.value,
-    pollutantName: pollutantNameInput.value,
-    reportYear: reportYearInput.value,
-    emissionType: emissionTypeInput.value,
-    emissionVolume: emissionVolumeInput.value,
-    massFlow: massFlowInput.value,
-    airTaxRate: airTaxRateInput.value,
-    waterTaxRate: waterTaxRateInput.value,
-    taxSum: taxSumInput.value,
+    objectName: document.querySelector("#object-name-input").value,
+    pollutantName: document.querySelector("#pollutant-name-input").value,
+    reportYear: document.querySelector("#report-year-input").value,
+    emissionType: document.querySelector("#emission-type-input").value,
+    emissionVolume: document.querySelector("#emission-volume-input").value,
+    massFlow: document.querySelector("#mass-flow-input").value,
+    airTaxRate: document.querySelector("#air-tax-rate-input").value,
+    waterTaxRate: document.querySelector("#water-tax-rate-input").value,
+    taxSum: document.querySelector("#tax-sum-input").value,
   };
 
-  // Очистити поля вводу
-  objectNameInput.value = "";
-  pollutantNameInput.value = "";
-  reportYearInput.value = "";
-  emissionTypeInput.value = "";
-  emissionVolumeInput.value = "";
-  massFlowInput.value = "";
-  airTaxRateInput.value = "";
-  waterTaxRateInput.value = "";
-  taxSumInput.value = "";
+  clearSpecificInputs([
+    "object-name-input",
+    "pollutant-name-input",
+    "report-year-input",
+    "emission-type-input",
+    "emission-volume-input",
+    "mass-flow-input",
+    "air-tax-rate-input",
+    "water-tax-rate-input",
+    "tax-sum-input",
+  ]);
 
-  // Відправити дані на сервер
   fetch("http://localhost:5000/insert", {
     headers: {
       "Content-type": "application/json",
@@ -322,7 +321,6 @@ addBtn.onclick = function () {
       return response.json();
     })
     .then((data) => {
-      // console.log("Received data:", data);
       if (data && data.data) {
         insertRowIntoTable(data.data);
       } else {
@@ -342,11 +340,7 @@ function insertRowIntoTable(data) {
   const isTableData = table.querySelector(".no-data");
 
   let tableHtml = "<tr>";
-
-  // Додати колонку з номером запису (ID)
   tableHtml += `<td>${data.id}</td>`; // Колонка з "№"
-
-  // Додати інші колонки
   tableHtml += `<td>${data.objectName}</td>`;
   tableHtml += `<td>${data.pollutantName}</td>`;
   tableHtml += `<td>${data.reportYear}</td>`;
@@ -356,11 +350,8 @@ function insertRowIntoTable(data) {
   tableHtml += `<td>${data.airTaxRate}</td>`;
   tableHtml += `<td>${data.waterTaxRate}</td>`;
   tableHtml += `<td>${data.taxSum}</td>`;
-
-  // Додати кнопки видалення та редагування
-  tableHtml += `<td><button class="delete-row-btn" data-id=${data.id}>Delete</button></td>`;
+  tableHtml += `<td><button class="delete-row-btn" data-id=${data.id}>Delete</button></td>`; // кнопки видалення та редагування
   tableHtml += `<td><button class="edit-row-btn" data-id=${data.id}>Edit</button></td>`;
-
   tableHtml += "</tr>";
 
   // Оновлення таблиці
@@ -425,6 +416,9 @@ function loadPollutantTable() {
           <td>${pollutant.PollutantName}</td>
           <td>${pollutant.HazardClass}</td>
           <td>${pollutant.MPC}</td>
+          <td><button class="delete-btn" onclick="deletePollutant(${
+            pollutant.idPollutant
+          })">Видалити</button></td>
         </tr>`;
         tbody.innerHTML += row;
       });
@@ -443,11 +437,110 @@ function loadEnterpriseTable() {
           <td>${enterprise.EnterpriseName}</td>
           <td>${enterprise.Address}</td>
           <td>${enterprise.ActivityType}</td>
+          <td><button class="delete-btn" onclick="deleteEnterprise(${
+            enterprise.idEnterprise
+          })">Видалити</button></td>
         </tr>`;
         tbody.innerHTML += row;
       });
     });
 }
+
+function deletePollutant(id) {
+  fetch(`http://localhost:5000/deletePollutant/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Речовину видалено!");
+        loadPollutantTable(); // Перезавантажуємо таблицю речовин
+      } else {
+        alert("Не вдалося видалити речовину.");
+      }
+    })
+    .catch((error) => console.error("Error deleting pollutant:", error));
+}
+
+function deleteEnterprise(id) {
+  fetch(`http://localhost:5000/deleteEnterprise/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Підприємство видалено!");
+        loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
+      } else {
+        alert("Не вдалося видалити підприємство.");
+      }
+    })
+    .catch((error) => console.error("Error deleting enterprise:", error));
+}
+
+// Додавання нового підприємства
+document
+  .querySelector("#enterprise-form")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const newEnterprise = {
+      name: document.querySelector("#new-enterprise-name").value,
+      address: document.querySelector("#new-enterprise-address").value,
+      activityType: document.querySelector("#new-enterprise-activity").value,
+    };
+
+    fetch("http://localhost:5000/addEnterprise", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newEnterprise),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Підприємство додано!");
+          clearFormInputs("enterprise-form"); // Очищуємо поля
+          loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
+        } else {
+          alert("Не вдалося додати підприємство.");
+        }
+      })
+      .catch((error) => console.error("Error adding enterprise:", error));
+  });
+
+// Додавання нової речовини
+document
+  .querySelector("#pollutant-form")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const newPollutant = {
+      name: document.querySelector("#new-pollutant-name").value,
+      hazardClass: document.querySelector("#new-hazard-class").value,
+      mpc: document.querySelector("#new-mpc").value,
+    };
+
+    fetch("http://localhost:5000/addPollutant", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newPollutant),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Речовину додано!");
+          clearFormInputs("pollutant-form"); // Очищуємо поля
+          loadPollutantTable(); // Перезавантажуємо таблицю речовин
+        } else {
+          alert("Не вдалося додати речовину.");
+        }
+      })
+      .catch((error) => console.error("Error adding pollutant:", error));
+  });
 
 //delete
 // Функція для видалення рядка за ID
@@ -459,7 +552,7 @@ function deleteRowById(id) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        location.reload(); // Reload the page after deletion
+        location.reload();
       } else {
         console.error("Failed to delete:", data);
       }

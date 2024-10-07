@@ -191,6 +191,43 @@ class DbService {
     }
   }
 
+  async addEnterprise(enterprise) {
+    const { name, address, activityType } = enterprise;
+    const query = `
+      INSERT INTO Enterprise (EnterpriseName, Address, ActivityType)
+      VALUES (?, ?, ?)
+    `;
+  
+    return new Promise((resolve, reject) => {
+      connection.query(query, [name, address, activityType], (err, result) => {
+        if (err) {
+          console.error("Error in addEnterprise:", err);
+          reject(err);
+        }
+        resolve(result.insertId);
+      });
+    });
+  }
+
+  async addPollutant(pollutant) {
+    const { name, hazardClass, mpc } = pollutant;
+    const query = `
+      INSERT INTO Pollutant (PollutantName, HazardClass, MPC)
+      VALUES (?, ?, ?)
+    `;
+  
+    return new Promise((resolve, reject) => {
+      connection.query(query, [name, hazardClass, mpc], (err, result) => {
+        if (err) {
+          console.error("Error in addPollutant:", err);
+          reject(err);
+        }
+        resolve(result.insertId);
+      });
+    });
+  }
+  
+  
   // Видалення запису за ID
   async deleteRowById(id) {
     try {
@@ -212,6 +249,32 @@ class DbService {
     }
   }
 
+  async deleteEnterpriseById(id) {
+    const query = "DELETE FROM Enterprise WHERE idEnterprise = ?";
+    return new Promise((resolve, reject) => {
+      connection.query(query, [id], (err, result) => {
+        if (err) {
+          console.error("Error in deleteEnterpriseById:", err);
+          reject(err);
+        }
+        resolve(result.affectedRows > 0);
+      });
+    });
+  }
+  
+  async deletePollutantById(id) {
+    const query = "DELETE FROM Pollutant WHERE idPollutant = ?";
+    return new Promise((resolve, reject) => {
+      connection.query(query, [id], (err, result) => {
+        if (err) {
+          console.error("Error in deletePollutantById:", err);
+          reject(err);
+        }
+        resolve(result.affectedRows > 0);
+      });
+    });
+  }
+  
   // Скидання AUTO_INCREMENT, якщо таблиця порожня
   async resetAutoIncrementIfEmpty() {
     try {
