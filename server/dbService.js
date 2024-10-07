@@ -31,7 +31,7 @@ class DbService {
       const response = await new Promise((resolve, reject) => {
         const query = `
           SELECT r.idReport, e.EnterpriseName, p.PollutantName, r.Year, r.EmissionType, 
-                 r.EmissionVolume, r.MassFlow, r.AirTaxRate, r.WaterTaxRate, r.TaxSum
+                 r.EmissionVolume, r.MassFlow, r.TaxType, r.TaxRate, r.TaxSum
           FROM Report r
           JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
           JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
@@ -155,7 +155,7 @@ class DbService {
       const insertId = await new Promise((resolve, reject) => {
         const query = `
           INSERT INTO Report 
-          (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionType, EmissionVolume, MassFlow, AirTaxRate, WaterTaxRate, TaxSum)
+          (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionType, EmissionVolume, MassFlow, TaxType, TaxRate, TaxSum)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
         connection.query(
@@ -167,8 +167,8 @@ class DbService {
             info.emissionType,
             info.emissionVolume,
             info.massFlow,
-            info.airTaxRate,
-            info.waterTaxRate,
+            info.taxType,
+            info.taxRate,
             info.taxSum,
           ],
           (err, result) => {
@@ -312,7 +312,7 @@ class DbService {
         const query = `
           UPDATE Report 
           SET Enterprise_idEnterprise = ?, Pollutant_idPollutant = ?, Year = ?, EmissionType = ?, 
-              EmissionVolume = ?, MassFlow = ?, AirTaxRate = ?, WaterTaxRate = ?, TaxSum = ?
+              EmissionVolume = ?, MassFlow = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
           WHERE idReport = ?;
         `;
         connection.query(
@@ -324,8 +324,8 @@ class DbService {
             info.emissionType,
             info.emissionVolume,
             info.massFlow,
-            info.airTaxRate,
-            info.waterTaxRate,
+            info.taxType,
+            info.taxRate,
             info.taxSum,
             id,
           ],
