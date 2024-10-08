@@ -43,8 +43,6 @@ function loadPollutants() {
 }
 
 
-
-
 document
   .querySelector("table tbody")
   .addEventListener("click", function (event) {
@@ -234,14 +232,15 @@ function clearSpecificInputs(inputIds) {
 
 function validateInputs() {
   const objectNameInput = document.querySelector("#object-name-input").value;
-  const pollutantNameInput = document.querySelector(
-    "#pollutant-name-input"
-  ).value;
+  const pollutantNameInput = document.querySelector("#pollutant-name-input").value;
   const reportYearInput = document.querySelector("#report-year-input").value;
-  const emissionVolumeInput = document.querySelector(
-    "#emission-volume-input"
-  ).value;
+  const emissionVolumeInput = document.querySelector("#emission-volume-input").value;
   const massFlowInput = document.querySelector("#mass-flow-input").value;
+  const energyInput = document.querySelector("#energy-input").value;
+  const storCost = document.querySelector("#storage-cost-input").value;
+  const storCostBef2009 = document.querySelector("#storage-cost-before-2009").value;
+  const taxRateInput = document.querySelector("#tax-rate-input").value;
+  const radioactWasteStorCoeff = document.querySelector("#radioact-waste-stor-coeff").value;
 
   const currentYear = new Date().getFullYear();
 
@@ -270,6 +269,31 @@ function validateInputs() {
     return false;
   }
 
+  if (parseFloat(energyInput) <= 0) {
+    alert("Обсяг електричної енергії повинний бути більше нуля.");
+    return false;
+  }
+
+  if (parseFloat(storCost) <= 1000) {
+    alert("Собівартісь зберігання повинна бути більше нуля.");
+    return false;
+  }
+
+  if (parseFloat(storCostBef2009) <= 1000) {
+    alert("Собівартісь зберігання повинна бути більше нуля.");
+    return false;
+  }
+
+  if (parseFloat(taxRateInput) <= 0) {
+    alert("Ставка податку повинна бути більше нуля.");
+    return false;
+  }
+
+  if (parseFloat(radioactWasteStorCoeff) < 0) {
+    alert("Кількість календарних кварталів не може бути від'ємною.");
+    return false;
+  }
+  
   return true;
 }
 
