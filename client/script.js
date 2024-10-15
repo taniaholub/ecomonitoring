@@ -524,6 +524,13 @@ function insertRowIntoTable(data) {
   const table = document.querySelector("table tbody");
   const isTableData = table.querySelector(".no-data");
 
+  // Зміна кольору клітинок для HQ та CR
+  const hqValue = parseFloat(data.hq);
+  const crValue = parseFloat(data.cr);
+  
+  const hqColor = (hqValue < 1) ? 'green' : 'red';
+  const crColor = (crValue < 1) ? 'green' : 'red';
+
   let tableHtml = "<tr>";
   tableHtml += `<td>${data.id}</td>`; // Колонка з "№"
   tableHtml += `<td>${data.objectName}</td>`;
@@ -532,8 +539,8 @@ function insertRowIntoTable(data) {
   tableHtml += `<td>${data.emissionVolume}</td>`;
   tableHtml += `<td>${data.massFlow}</td>`;
   tableHtml += `<td>${data.concentration}</td>`;
-  tableHtml += `<td>${data.hq}</td>`;
-  tableHtml += `<td>${data.cr}</td>`;
+  tableHtml += `<td style="background-color: ${hqColor}">${data.hq}</td>`;
+  tableHtml += `<td style="background-color: ${crColor}">${data.cr}</td>`;
   tableHtml += `<td>${data.taxType}</td>`;
   tableHtml += `<td>${data.taxRate}</td>`;
   tableHtml += `<td>${data.taxSum}</td>`;
@@ -573,7 +580,11 @@ function loadHTMLTable(data) {
     TaxType,
     TaxRate,
     TaxSum,
-  }) {
+  }) 
+  {
+    const carcinogenColor = (CarcinogenRisk < 1) ? 'green' : 'red';
+    const nonCarcinogenColor = (NonCarcinogenRisk < 1) ? 'green' : 'red';
+
     tableHtml += "<tr>";
     tableHtml += `<td>${idReport}</td>`;
     tableHtml += `<td>${EnterpriseName}</td>`;
@@ -582,8 +593,8 @@ function loadHTMLTable(data) {
     tableHtml += `<td>${EmissionVolume}</td>`;
     tableHtml += `<td>${MassFlow}</td>`;
     tableHtml += `<td>${CompConcentration}</td>`;
-    tableHtml += `<td>${CarcinogenRisk}</td>`;
-    tableHtml += `<td>${NonCarcinogenRisk}</td>`;
+    tableHtml += `<td style="background-color: ${carcinogenColor}">${CarcinogenRisk}</td>`;
+    tableHtml += `<td style="background-color: ${nonCarcinogenColor}">${NonCarcinogenRisk}</td>`;
     tableHtml += `<td>${TaxType}</td>`;
     tableHtml += `<td>${TaxRate}</td>`;
     tableHtml += `<td>${TaxSum}</td>`;
