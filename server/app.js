@@ -137,26 +137,6 @@ app.get("/getAllEnterprises", (request, response) => {
     });
 });
 
-app.get("/getPollutantFactors", (req, res) => {
-  const { name } = req.query;
-  const db = DbService.getDbServiceInstance();
-
-  db.getPollutantFactors(name)
-    .then((data) => {
-      if (data) {
-        res.json(data); // Повертаємо SF і RFC
-      } else {
-        res.status(404).json({ message: "Речовину не знайдено." });
-      }
-    })
-    .catch((err) => {
-      console.error("Помилка при отриманні даних про речовину:", err);
-      res.status(500).json({ message: "Помилка сервера при отриманні речовини." });
-    });
-});
-
-
-
 // Оновлення запису
 app.patch("/update", (req, res) => {
   const { id, info } = req.body;
@@ -173,6 +153,24 @@ app.patch("/update", (req, res) => {
     .catch((err) => {
       console.error("Error in /update route:", err);
       res.status(500).json({ message: "Error updating row" });
+    });
+});
+
+app.get("/getPollutantFactors", (req, res) => {
+  const { name } = req.query;
+  const db = DbService.getDbServiceInstance();
+
+  db.getPollutantFactors(name)
+    .then((data) => {
+      if (data) {
+        res.json(data); // Повертаємо SF і RFC
+      } else {
+        res.status(404).json({ message: "Речовину не знайдено." });
+      }
+    })
+    .catch((err) => {
+      console.error("Помилка при отриманні даних про речовину:", err);
+      res.status(500).json({ message: "Помилка сервера при отриманні речовини." });
     });
 });
 

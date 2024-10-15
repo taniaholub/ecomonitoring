@@ -94,3 +94,41 @@ label {
   text-align: left;
   width: 70%;
 }
+
+.form-input {
+  display: block;
+  margin-bottom: 5px; 
+  padding: 10px;
+  width: 70%;
+  box-sizing: border-box;
+  border: 1px solid rgb(144, 144, 144);
+  font-size: 14px;
+  color: #333;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #45a049; 
+}
+
+.info-icon {
+  margin-left: 5px; 
+  font-size: 18px; 
+  color: #04893c; 
+  cursor: pointer; 
+}
+
+.tooltip {
+  display: none; 
+  position: absolute; 
+  background-color: rgb(189, 189, 189); 
+  border: 1px solid #ccc; 
+  padding: 10px; 
+  z-index: 10; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+}
+
+.info-icon:hover + .tooltip {
+  display: block; /* Показати tooltip при наведенні */
+}
+

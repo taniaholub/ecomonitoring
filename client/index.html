@@ -35,8 +35,27 @@
           <th>Об'єм викидів т/рік</th>
           <th>Масова витрата, г/год.</th>
           <th>Концентрація сполуки у повітрі(С , мг/м^3)</th>
-          <th>Коефіцієнт неканцерогенного ризику(HQ)</th>
-          <th>Коефіцієнт канцерогенного ризику(CR)</th>
+          <th>
+            Коефіцієнт неканцерогенного ризику (HQ) 
+            <span class="info-icon" id="hq-info-icon">ℹ️</span>
+            <div class="tooltip" id="hq-tooltip">
+              <p style="color: green;">HQ &lt; 1 - Ризик виникнення шкідливих ефектів розглядають як зневажливо малий;</p>
+              <p style="color: yellow;">HQ = 1 - Гранична величина, що не потребує термінових заходів, однак не може розглядатися як прийнятна;</p>
+              <p style="color: red;">HQ &gt; 1 - Імовірність розвитку шкідливих ефектів велика;</p>
+            </div>
+          </th>
+          
+          <th>
+            Коефіцієнт канцерогенного ризику (CR) 
+            <span class="info-icon" id="cr-info-icon">ℹ️</span>
+            <div class="tooltip" id="cr-tooltip">
+              <p style="color: blue;">CR &lt; 10<sup>-6</sup> - цільова величина ризику при проведенні оздоровчих і природоохоронних заходів;</p>
+              <p style="color: green;">CR &gt; 10<sup>-6</sup> - CR &lt; 10<sup>-4</sup> - Низький - припустимий ризик;</p>
+              <p style="color: yellow;">CR &gt; 10<sup>-4</sup> - CR &lt; 10<sup>-3</sup> - Середній - припустимий ризик для виробничих умов;</p>
+              <p style="color: red;">CR &gt; 10<sup>-3</sup> - Високий - неприйнятний для виробничих умов і населення;</p>
+            </div>
+          </th>
+          
           <th>Тип податку, грн/т</th>
           <th>Ставка податку, грн/т</th>
           <th>Сума податку, грн</th>
@@ -47,87 +66,89 @@
       <tbody></tbody>
     </table>
 
-  <form id="report-form">
-    <label>Додайте нове поле:</label>
-    <label for="object-name-input">Назва об'єкта:</label>
-    <select id="object-name-input">
-      <option value="">Виберіть підприємство</option>
-    </select>
-
-    <label for="pollutant-name-input">Назва забруднюючої речовини:</label>
-    <select id="pollutant-name-input">
-      <option value="">Виберіть речовину</option>
-    </select>
-    <input type="text" id="report-year-input" placeholder="Рік звітності" />
-    <input type="number" id="emission-volume-input" placeholder="Об'єм викидів (V) т/рік" />
-    <input type="number" id="mass-flow-input" placeholder="Масова витрата, г/год." />
-    <input type="number" id="compound-concentr-input" placeholder="Концентрація сполуки у забрудненому повітрі, мг/м^3" />
-    <input type="hidden" id="hq-input" />
-    <input type="hidden" id="cr-input" />
-
-    <label for="tax-type-input">Оберіть тип податку:</label>
-    <select id="tax-type-input">
-      <option value="Викиди в атмосферне повітря">Викиди в атмосферне повітря забруднюючих речовин</option>
-      <option value="Викиди у водні об'єкти">За скиди забруднюючих речовин у водні об'єкти </option>
-      <option value="За розміщення відходів">За розміщення відходів</option>
-      <option value="Утворення радіоактивних відходів">Утворення радіоактивних відходів </option>
-      <option value="Зберігання радіоактивних відходів">Тимчасове зберігання радіоактивних відходів</option>
-    </select>
-
-    <!-- Додаткові поля "Викиди у водні об'єкти" -->
-    <div id="water-waste-fields" style="display: none;">
-      <label for="correc-coeff-input">Корегуючий коефіцієнт (Кос):</label>
-      <select id="correc-coeff-input">
-        <option value="1.5">1,5 (у разі скидання забруднюючих речовин у ставки і озера)</option>
-        <option value="1">1 (інший випадок)</option>
+    <form id="report-form"> 
+      <label>Додайте нове поле:</label>
+  
+      <label for="object-name-input">Назва об'єкта:</label>
+      <select class="form-input" id="object-name-input">
+        <option value="">Виберіть підприємство</option>
       </select>
-    </div>
-
-    <!-- Додаткові поля "За розміщення відходів" -->
-    <div id="waste-disposal-fields" style="display: none;">
-      <label for="waste-disposal-coeff">Коригуючий коефіцієнт, який враховує розташування місця розміщення відходів
-        (Кт):</label>
-      <select id="waste-disposal-coeff">
-        <option value="3">3 (в межах населеного пункту або на відстані менш як 3 км) </option>
-        <option value="1">1 (на відстані від 3 км і більше від меж населеного пункту)</option>
+  
+      <label for="pollutant-name-input">Назва забруднюючої речовини:</label>
+      <select class="form-input" id="pollutant-name-input">
+        <option value="">Виберіть речовину</option>
       </select>
-    </div>
-
-    <!-- Додаткові поля 'Утворення радіоактивних відходів' -->
-    <div id="radioactive-fields" style="display: none;">
-      <label for="energy-input">Фактичний обсяг електричної енергії (On):</label>
-      <input type="number" id="energy-input" value="1000" />
-
-      <label for="waste-coeff-input">Коригуючий коефіцієнт для відходів:</label>
-      <select id="waste-coeff-input">
-        <option value="50">Для високоактивних відходів (рв = 50)</option>
-        <option value="2">Для середньоактивних та низькоактивних відходів (рнс = 2)</option>
+  
+      <label for="report-year-input">Рік звітності:</label>
+      <input class="form-input" type="text" id="report-year-input" placeholder="Рік звітності" />
+  
+      <label for="emission-volume-input">Об'єм викидів (V) т/рік:</label>
+      <input class="form-input" type="number" id="emission-volume-input" placeholder="Об'єм викидів (V) т/рік" />
+  
+      <label for="mass-flow-input">Масова витрата, г/год.:</label>
+      <input class="form-input" type="number" id="mass-flow-input" placeholder="Масова витрата, г/год." />
+  
+      <label for="compound-concentr-input">Концентрація сполуки у забрудненому повітрі, мг/м^3:</label>
+      <input class="form-input" type="number" id="compound-concentr-input" placeholder="Концентрація сполуки у забрудненому повітрі, мг/м^3" />
+  
+      <input type="hidden" id="hq-input" />
+      <input type="hidden" id="cr-input" />
+  
+      <label for="tax-type-input">Оберіть тип податку:</label>
+      <select class="form-input" id="tax-type-input">
+        <option value="Викиди в атмосферне повітря">Викиди в атмосферне повітря забруднюючих речовин</option>
+        <option value="Викиди у водні об'єкти">За скиди забруднюючих речовин у водні об'єкти</option>
+        <option value="За розміщення відходів">За розміщення відходів</option>
+        <option value="Утворення радіоактивних відходів">Утворення радіоактивних відходів</option>
+        <option value="Зберігання радіоактивних відходів">Тимчасове зберігання радіоактивних відходів</option>
       </select>
-
-      <label for="storage-cost-input">Собівартість зберігання 1 м^3 відходів у вигл. джерел іонізуючого випромін.
-        утворених їх виробниками за базовий податковий період(С1):</label>
-      <input type="number" id="storage-cost-input"
-        placeholder="Для високоактивних (10000-50000 грн). Для середньо- та низько - активних (1000-5000 грн):" />
-
-      <label for="storage-cost-before-2009">Собівартість зберігання відходів,накопичених їх виробниками до 1 квітня 2009
-        (С2):</label>
-      <input type="number" id="storage-cost-before-2009"
-        placeholder="Для високоактивних (8000-40000 грн). Для середньо- та низько - активних (1000-4000 грн):" />
-
-      <input type="number" id="accumulated-waste-volume"
-        placeholder="Об'єм високоактивних радіоактивних відходів, накопичених у сховищах організацій до 1 квітня 2009 (V2):" />
-
-    </div>
-
-    <!-- Додаткові поля "Зберігання радіоактивних відходів" -->
-    <div id="radioact-waste-stor-fields" style="display: none;">
-      <input type="number" id="radioact-waste-stor-coeff"
-        placeholder="Кількість календарних кварталів, протягом яких радіоактивні відходи зберігаються понад установлений строк (Т):" />
-    </div>
-
-    <input type="number" id="tax-rate-input" placeholder="Ставка податку, грн/т" />
-    <input type="hidden" id="tax-sum-input" />
-
+  
+      <!-- Додаткові поля "Викиди у водні об'єкти" -->
+      <div id="water-waste-fields" style="display: none;">
+        <label for="correc-coeff-input">Корегуючий коефіцієнт (Кос):</label>
+        <select class="form-input" id="correc-coeff-input">
+          <option value="1.5">1,5 (у разі скидання забруднюючих речовин у ставки і озера)</option>
+          <option value="1">1 (інший випадок)</option>
+        </select>
+      </div>
+  
+      <!-- Додаткові поля "За розміщення відходів" -->
+      <div id="waste-disposal-fields" style="display: none;">
+        <label for="waste-disposal-coeff">Коригуючий коефіцієнт, який враховує розташування місця розміщення відходів (Кт):</label>
+        <select class="form-input" id="waste-disposal-coeff">
+          <option value="3">3 (в межах населеного пункту або на відстані менш як 3 км)</option>
+          <option value="1">1 (на відстані від 3 км і більше від меж населеного пункту)</option>
+        </select>
+      </div>
+  
+      <!-- Додаткові поля 'Утворення радіоактивних відходів' -->
+      <div id="radioactive-fields" style="display: none;">
+        <label for="energy-input">Фактичний обсяг електричної енергії (On):</label>
+        <input class="form-input" type="number" id="energy-input" value="1000" />
+  
+        <label for="waste-coeff-input">Коригуючий коефіцієнт для відходів:</label>
+        <select class="form-input" id="waste-coeff-input">
+          <option value="50">Для високоактивних відходів (рв = 50)</option>
+          <option value="2">Для середньоактивних та низькоактивних відходів (рнс = 2)</option>
+        </select>
+  
+        <label for="storage-cost-input">Собівартість зберігання 1 м^3 відходів у вигл. джерел іонізуючого випромін. утворених їх виробниками за базовий податковий період (С1):</label>
+        <input class="form-input" type="number" id="storage-cost-input" placeholder="Для високоактивних (10000-50000 грн). Для середньо- та низько - активних (1000-5000 грн):" />
+  
+        <label for="storage-cost-before-2009">Собівартість зберігання відходів, накопичених їх виробниками до 1 квітня 2009 (С2):</label>
+        <input class="form-input" type="number" id="storage-cost-before-2009" placeholder="Для високоактивних (8000-40000 грн). Для середньо- та низько - активних (1000-4000 грн):" />
+  
+        <input class="form-input" type="number" id="accumulated-waste-volume" placeholder="Об'єм високоактивних радіоактивних відходів, накопичених у сховищах організацій до 1 квітня 2009 (V2):" />
+      </div>
+  
+      <!-- Додаткові поля "Зберігання радіоактивних відходів" -->
+      <div id="radioact-waste-stor-fields" style="display: none;">
+        <input class="form-input" type="number" id="radioact-waste-stor-coeff" placeholder="Кількість календарних кварталів, протягом яких радіоактивні відходи зберігаються понад установлений строк (Т):" />
+      </div>
+  
+      <input class="form-input" type="number" id="tax-rate-input" placeholder="Ставка податку, грн/т" />
+  
+      <input type="hidden" id="tax-sum-input" />
   </form>
   
     <button id="add-info-btn">Додати інформацію</button>

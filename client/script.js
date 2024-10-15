@@ -270,12 +270,12 @@ function validateInputs() {
   }
 
   if (parseFloat(storCost) <= 1000) {
-    alert("Собівартісь зберігання повинна бути більше нуля.");
+    alert("Собівартісь зберігання повинна бути більше 1000.");
     return false;
   }
 
   if (parseFloat(storCostBef2009) <= 1000) {
-    alert("Собівартісь зберігання повинна бути більше нуля.");
+    alert("Собівартісь зберігання повинна бути більше 1000.");
     return false;
   }
 
@@ -457,8 +457,8 @@ fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
   const cr = ladd * SF; // канцерагенний
 
   // Виводимо результати в приховані поля форми
-  document.querySelector("#hq-input").value = hq.toFixed(2);
-  document.querySelector("#cr-input").value = cr.toFixed(2);
+  document.querySelector("#hq-input").value = hq.toFixed(3);
+  document.querySelector("#cr-input").value = cr.toFixed(3);
 
   //alert(`Ladd: ${ladd.toFixed(6)}, HQ: ${hq.toFixed(2)}, CR: ${cr.toFixed(2)}`);
 
@@ -470,15 +470,12 @@ fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
     emissionVolume: parseFloat(document.querySelector("#emission-volume-input").value),
     massFlow: parseFloat(document.querySelector("#mass-flow-input").value),
     concentration: concentration,
-    hq: hq.toFixed(2),
-    cr: cr.toFixed(2),
-    taxType: document.querySelector("#tax-type-input").value,
-    taxRate: parseFloat(document.querySelector("#tax-rate-input").value),
-    taxSum: parseFloat(document.querySelector("#tax-sum-input").value),
+    hq: hq.toFixed(3),
+    cr: cr.toFixed(3),
+    taxType: emissionType,
+    taxRate: taxRate,
+    taxSum: taxSum.toFixed(2),
   };
-
-  // Вставка нового рядка в таблицю
-  insertRowIntoTable(info);
 
   // Надсилаємо дані на сервер для вставки в базу
   fetch("http://localhost:5000/insert", {
@@ -494,7 +491,14 @@ fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
     }
     return response.json();
   })
-  
+  .then((data) => {
+    // console.log("Received data:", data);
+    if (data && data.data) {
+      insertRowIntoTable(data.data);
+    } else {
+      console.error("Unexpected data structure:", data);
+    }
+  })
   .then(() => {
     clearFormInputs("report-form");
   })
@@ -536,7 +540,7 @@ function insertRowIntoTable(data) {
     console.error("No data provided to insertRowIntoTable");
     return;
   }
-
+ 
   const table = document.querySelector("table tbody");
   const isTableData = table.querySelector(".no-data");
 
@@ -588,8 +592,8 @@ function loadHTMLTable(data) {
     EmissionVolume,
     MassFlow,
     CompConcentration,
-    CarcinogenRisk,
     NonCarcinogenRisk,
+    CarcinogenRisk,
     TaxType,
     TaxRate,
     TaxSum,

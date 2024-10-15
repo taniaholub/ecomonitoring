@@ -31,7 +31,7 @@ class DbService {
       const response = await new Promise((resolve, reject) => {
         const query = `
           SELECT r.idReport, e.EnterpriseName, p.PollutantName, r.Year, 
-                 r.EmissionVolume, r.MassFlow, r.CompConcentration, r.CarcinogenRisk, r.NonCarcinogenRisk,
+                 r.EmissionVolume, r.MassFlow, r.CompConcentration, r.NonCarcinogenRisk, r.CarcinogenRisk,
                  r.TaxType, r.TaxRate, r.TaxSum
           FROM Report r
           JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
@@ -157,7 +157,7 @@ class DbService {
         const query = `
           INSERT INTO Report 
           (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionVolume, MassFlow, 
-           CompConcentration, CarcinogenRisk, NonCarcinogenRisk,
+           CompConcentration, NonCarcinogenRisk, CarcinogenRisk, 
            TaxType, TaxRate, TaxSum)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
@@ -322,7 +322,7 @@ class DbService {
           UPDATE Report 
           SET Enterprise_idEnterprise = ?, Pollutant_idPollutant = ?, Year = ?, 
               EmissionVolume = ?, MassFlow = ?,  CompConcentration = ?,
-              CarcinogenRisk = ?, NonCarcinogenRisk = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
+              NonCarcinogenRisk = ?, CarcinogenRisk = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
           WHERE idReport = ?;
         `;
         connection.query(
