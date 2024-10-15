@@ -32,9 +32,11 @@
           <th>Назва об'єкта</th>
           <th>Назва забруднюючої речовини</th>
           <th>Рік звітності</th>
-          <th>Тип викидів</th>
           <th>Об'єм викидів т/рік</th>
           <th>Масова витрата, г/год.</th>
+          <th>Концентрація сполуки у повітрі(С , мг/м^3)</th>
+          <th>Коефіцієнт неканцерогенного ризику(HQ)</th>
+          <th>Коефіцієнт канцерогенного ризику(CR)</th>
           <th>Тип податку, грн/т</th>
           <th>Ставка податку, грн/т</th>
           <th>Сума податку, грн</th>
@@ -56,13 +58,12 @@
       <option value="">Виберіть речовину</option>
     </select>
     <input type="text" id="report-year-input" placeholder="Рік звітності" />
-    <label for="emission-type-input">Тип викидів:</label>
-    <select id="emission-type-input">
-      <option value="Повітря">Повітря</option>
-      <option value="Вода">Вода</option>
-    </select>
     <input type="number" id="emission-volume-input" placeholder="Об'єм викидів (V) т/рік" />
     <input type="number" id="mass-flow-input" placeholder="Масова витрата, г/год." />
+    <input type="number" id="compound-concentr-input" placeholder="Концентрація сполуки у забрудненому повітрі, мг/м^3" />
+    <input type="hidden" id="hq-input" />
+    <input type="hidden" id="cr-input" />
+
     <label for="tax-type-input">Оберіть тип податку:</label>
     <select id="tax-type-input">
       <option value="Викиди в атмосферне повітря">Викиди в атмосферне повітря забруднюючих речовин</option>
@@ -142,6 +143,8 @@
           <th>Назва речовини</th>
           <th>Клас небезпеки</th>
           <th>ГДК</th>
+          <th>RFC - безпечний рівень впливу речовини</th>
+          <th>SF - фактор канцерогенного потенціалу сполуки</th>
           <th>Видалити</th>
         </tr>
       </thead>
@@ -153,7 +156,9 @@
     <form id="pollutant-form">
       <input type="text" id="new-pollutant-name" placeholder="Назва речовини" required />
       <input type="text" id="new-hazard-class" placeholder="Клас небезпеки" required />
-      <input type="number" id="new-mpc" placeholder="ГДК" step="0.01" required />
+      <input type="number" id="new-mpc" placeholder="ГДК" step="any" required />
+      <input type="number" id="new-rfc" placeholder="RFC - безпечний рівень впливу речовини" step="any" required />
+      <input type="number" id="new-sf" placeholder="SF - фактор канцерогенного потенціалу сполуки" step="any" required />
       <button type="submit">Додати речовину</button>
     </form>
 

@@ -30,8 +30,9 @@ class DbService {
     try {
       const response = await new Promise((resolve, reject) => {
         const query = `
-          SELECT r.idReport, e.EnterpriseName, p.PollutantName, r.Year, r.EmissionType, 
-                 r.EmissionVolume, r.MassFlow, r.TaxType, r.TaxRate, r.TaxSum
+          SELECT r.idReport, e.EnterpriseName, p.PollutantName, r.Year, 
+                 r.EmissionVolume, r.MassFlow, r.CompConcentration, r.CarcinogenRisk, r.NonCarcinogenRisk,
+                 r.TaxType, r.TaxRate, r.TaxSum
           FROM Report r
           JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
           JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
@@ -155,8 +156,10 @@ class DbService {
       const insertId = await new Promise((resolve, reject) => {
         const query = `
           INSERT INTO Report 
-          (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionType, EmissionVolume, MassFlow, TaxType, TaxRate, TaxSum)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+          (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionVolume, MassFlow, 
+           CompConcentration, CarcinogenRisk, NonCarcinogenRisk,
+           TaxType, TaxRate, TaxSum)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
         connection.query(
           query,
@@ -164,9 +167,11 @@ class DbService {
             enterpriseId,
             pollutantId,
             info.reportYear,
-            info.emissionType,
             info.emissionVolume,
             info.massFlow,
+            info.concentration,
+            info.hq,
+            info.cr,
             info.taxType,
             info.taxRate,
             info.taxSum,
@@ -197,7 +202,7 @@ class DbService {
       INSERT INTO Enterprise (EnterpriseName, Address, ActivityType)
       VALUES (?, ?, ?)
     `;
-  
+
     return new Promise((resolve, reject) => {
       connection.query(query, [name, address, activityType], (err, result) => {
         if (err) {
@@ -210,24 +215,27 @@ class DbService {
   }
 
   async addPollutant(pollutant) {
-    const { name, hazardClass, mpc } = pollutant;
+    const { name, hazardClass, mpc, rfc, sf } = pollutant;
     const query = `
-      INSERT INTO Pollutant (PollutantName, HazardClass, MPC)
-      VALUES (?, ?, ?)
+      INSERT INTO Pollutant (PollutantName, HazardClass, MPC, RFC, SF)
+      VALUES (?, ?, ?, ?, ?)
     `;
-  
+
     return new Promise((resolve, reject) => {
-      connection.query(query, [name, hazardClass, mpc], (err, result) => {
-        if (err) {
-          console.error("Error in addPollutant:", err);
-          reject(err);
+      connection.query(
+        query,
+        [name, hazardClass, mpc, rfc, sf],
+        (err, result) => {
+          if (err) {
+            console.error("Error in addPollutant:", err);
+            reject(err);
+          }
+          resolve(result.insertId);
         }
-        resolve(result.insertId);
-      });
+      );
     });
   }
-  
-  
+
   // Видалення запису за ID
   async deleteRowById(id) {
     try {
@@ -261,7 +269,7 @@ class DbService {
       });
     });
   }
-  
+
   async deletePollutantById(id) {
     const query = "DELETE FROM Pollutant WHERE idPollutant = ?";
     return new Promise((resolve, reject) => {
@@ -274,7 +282,7 @@ class DbService {
       });
     });
   }
-  
+
   // Скидання AUTO_INCREMENT, якщо таблиця порожня
   async resetAutoIncrementIfEmpty() {
     try {
@@ -311,8 +319,9 @@ class DbService {
       const response = await new Promise((resolve, reject) => {
         const query = `
           UPDATE Report 
-          SET Enterprise_idEnterprise = ?, Pollutant_idPollutant = ?, Year = ?, EmissionType = ?, 
-              EmissionVolume = ?, MassFlow = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
+          SET Enterprise_idEnterprise = ?, Pollutant_idPollutant = ?, Year = ?, 
+              EmissionVolume = ?, MassFlow = ?,  CompConcentration = ?,
+              CarcinogenRisk = ?, NonCarcinogenRisk = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
           WHERE idReport = ?;
         `;
         connection.query(
@@ -321,9 +330,11 @@ class DbService {
             enterpriseId,
             pollutantId,
             info.reportYear,
-            info.emissionType,
             info.emissionVolume,
             info.massFlow,
+            info.concentration,
+            info.hq,
+            info.cr,
             info.taxType,
             info.taxRate,
             info.taxSum,
@@ -400,6 +411,25 @@ class DbService {
       return response;
     } catch (error) {
       console.error("Error in sortByField:", error);
+      throw error;
+    }
+  }
+
+  // Оновлена функція для отримання sf та rfc з таблиці Pollutant
+  async getPollutantFactors(pollutantName) {
+    try {
+      return new Promise((resolve, reject) => {
+        const query = `SELECT SF, RFC FROM Pollutant WHERE PollutantName = ?`;
+        connection.query(query, [pollutantName], (err, results) => {
+          if (results.length > 0) {
+            resolve(results[0]);
+          } else {
+            reject(new Error("Речовину не знайдено"));
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Помилка в getPollutantFactors:", error);
       throw error;
     }
   }

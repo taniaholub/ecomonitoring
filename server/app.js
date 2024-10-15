@@ -65,10 +65,10 @@ app.post("/addEnterprise", (req, res) => {
 });
 
 app.post("/addPollutant", (req, res) => {
-  const { name, hazardClass, mpc } = req.body;
+  const { name, hazardClass, mpc, rfc, sf} = req.body;
   const db = DbService.getDbServiceInstance();
 
-  db.addPollutant({ name, hazardClass, mpc })
+  db.addPollutant({ name, hazardClass, mpc, rfc, sf})
     .then(() => res.json({ success: true }))
     .catch((err) => {
       console.error("Error adding pollutant:", err);
@@ -136,6 +136,25 @@ app.get("/getAllEnterprises", (request, response) => {
       response.status(500).json({ error: err.message });
     });
 });
+
+app.get("/getPollutantFactors", (req, res) => {
+  const { name } = req.query;
+  const db = DbService.getDbServiceInstance();
+
+  db.getPollutantFactors(name)
+    .then((data) => {
+      if (data) {
+        res.json(data); // Повертаємо SF і RFC
+      } else {
+        res.status(404).json({ message: "Речовину не знайдено." });
+      }
+    })
+    .catch((err) => {
+      console.error("Помилка при отриманні даних про речовину:", err);
+      res.status(500).json({ message: "Помилка сервера при отриманні речовини." });
+    });
+});
+
 
 
 // Оновлення запису
