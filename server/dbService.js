@@ -239,7 +239,7 @@ class DbService {
   // Видалення запису за ID
   async deleteRowById(id) {
     try {
-      id = parseInt(id, 10);
+      id = parseInt(id, 10); // Перетворення на число
       const response = await new Promise((resolve, reject) => {
         const query = "DELETE FROM report WHERE idReport = ?";
         connection.query(query, [id], (err, result) => {
@@ -250,12 +250,13 @@ class DbService {
           resolve(result.affectedRows);
         });
       });
-      return response === 1;
+      return response === 1;  
     } catch (error) {
       console.error("Error in deleteRowById:", error);
-      return false;
+      return false; 
     }
   }
+  
 
   async deleteEnterpriseById(id) {
     const query = "DELETE FROM Enterprise WHERE idEnterprise = ?";

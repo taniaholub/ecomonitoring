@@ -156,19 +156,7 @@ updateBtn.onclick = function () {
     .then((data) => {
       if (data.success) {
         updateRowInTable(id, updateInfoInput);
-        clearSpecificInputs([
-          "object-name-input",
-          "pollutant-name-input",
-          "report-year-input",
-          "emission-volume-input",
-          "mass-flow-input",
-          "compound-concentr-input",
-          "hq-input",
-          "cr-input",
-          "tax-type-input",
-          "tax-rate-input",
-          "tax-sum-input",
-        ]);
+        clearFormInputs("enterprise-form"); 
         document.querySelector("#update-row-input").hidden = true;
       } else {
         alert("Failed to update: " + data.message);
@@ -438,7 +426,6 @@ addBtn.onclick = function () {
   }
 
   // Отримуємо значення sf та rfc для вибраної речовини
-  // Отримуємо значення sf та rfc для вибраної речовини
 fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
 .then(response => {
   console.log("Статус відповіді:", response.status);
@@ -466,14 +453,14 @@ fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
   const AT = 70;
   const ladd = (concentration * CR * EF * ED) / (BW * AT * 365);
 
-  const hq = ladd / RFC;
-  const cr = ladd * SF;
+  const hq = ladd / RFC; // неканцерагенний
+  const cr = ladd * SF; // канцерагенний
 
   // Виводимо результати в приховані поля форми
   document.querySelector("#hq-input").value = hq.toFixed(2);
   document.querySelector("#cr-input").value = cr.toFixed(2);
 
-  alert(`Ladd: ${ladd.toFixed(6)}, HQ: ${hq.toFixed(2)}, CR: ${cr.toFixed(2)}`);
+  //alert(`Ladd: ${ladd.toFixed(6)}, HQ: ${hq.toFixed(2)}, CR: ${cr.toFixed(2)}`);
 
   // Додавання даних до таблиці Report
   const info = {
@@ -507,12 +494,41 @@ fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
     }
     return response.json();
   })
-
+  
+  .then(() => {
+    clearFormInputs("report-form");
+  })
 })
 .catch(error => {
   console.error("Помилка при отриманні даних про речовину:", error);
 });
 };
+
+
+// Функція для визначення кольору NonCarcinogenRisk
+function getNonCarcinogenRiskColor(value) {
+  if (value < 1) {
+    return 'green';
+  } else if (value === 1) {
+    return 'yellow';
+  } else {
+    return 'red';
+  }
+}
+
+// Функція для визначення кольору CarcinogenRisk
+function getCarcinogenRiskColor(value) {
+  if (value < Math.pow(10, -6)) {
+    return 'lightblue';
+  } else if (value >= Math.pow(10, -6) && value < Math.pow(10, -4)) {
+    return 'green';
+  } else if (value >= Math.pow(10, -4) && value < Math.pow(10, -3)) {
+    return 'yellow';
+  } else {
+    return 'red';
+  }
+}
+
 
 // insert new info into table
 function insertRowIntoTable(data) {
@@ -525,11 +541,8 @@ function insertRowIntoTable(data) {
   const isTableData = table.querySelector(".no-data");
 
   // Зміна кольору клітинок для HQ та CR
-  const hqValue = parseFloat(data.hq);
-  const crValue = parseFloat(data.cr);
-  
-  const hqColor = (hqValue < 1) ? 'green' : 'red';
-  const crColor = (crValue < 1) ? 'green' : 'red';
+  const hqColor = getNonCarcinogenRiskColor(parseFloat(data.hq));
+  const crColor = getCarcinogenRiskColor(parseFloat(data.cr));
 
   let tableHtml = "<tr>";
   tableHtml += `<td>${data.id}</td>`; // Колонка з "№"
@@ -582,8 +595,9 @@ function loadHTMLTable(data) {
     TaxSum,
   }) 
   {
-    const carcinogenColor = (CarcinogenRisk < 1) ? 'green' : 'red';
-    const nonCarcinogenColor = (NonCarcinogenRisk < 1) ? 'green' : 'red';
+
+    const nonCarcinogenColor = getNonCarcinogenRiskColor(NonCarcinogenRisk);
+    const carcinogenColor = getCarcinogenRiskColor(CarcinogenRisk);
 
     tableHtml += "<tr>";
     tableHtml += `<td>${idReport}</td>`;
@@ -593,8 +607,8 @@ function loadHTMLTable(data) {
     tableHtml += `<td>${EmissionVolume}</td>`;
     tableHtml += `<td>${MassFlow}</td>`;
     tableHtml += `<td>${CompConcentration}</td>`;
-    tableHtml += `<td style="background-color: ${carcinogenColor}">${CarcinogenRisk}</td>`;
     tableHtml += `<td style="background-color: ${nonCarcinogenColor}">${NonCarcinogenRisk}</td>`;
+    tableHtml += `<td style="background-color: ${carcinogenColor}">${CarcinogenRisk}</td>`;
     tableHtml += `<td>${TaxType}</td>`;
     tableHtml += `<td>${TaxRate}</td>`;
     tableHtml += `<td>${TaxSum}</td>`;
