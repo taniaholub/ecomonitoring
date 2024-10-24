@@ -59,6 +59,7 @@
           <th>Тип податку, грн/т</th>
           <th>Ставка податку, грн/т</th>
           <th>Сума податку, грн</th>
+          <th>Сума збитків, грн</th> 
           <th>Видалити</th>
           <th>Редагувати</th>
         </tr>
@@ -85,8 +86,14 @@
       <label for="emission-volume-input">Об'єм викидів (V) т/рік:</label>
       <input class="form-input" type="number" id="emission-volume-input" placeholder="Об'єм викидів (V) т/рік" />
   
-      <label for="mass-flow-input">Масова витрата, г/год.:</label>
-      <input class="form-input" type="number" id="mass-flow-input" placeholder="Масова витрата, г/год." />
+      <label for="mass-flow-input">Середнє значення масової витрати, г/с:</label>
+      <input class="form-input" type="number" id="mass-flow-input" placeholder="Середнє значення масової витрати, г/с." />
+
+      <label for="emmission-standard-input">Значення затвердженого нормативу викиду речовини, г/с:</label>
+      <input class="form-input" type="number" id="emmission-standard-input" placeholder="Значення затвердженого нормативу викиду речовини, г/с." />
+
+      <label for="emission-time-input">Час роботи джерела викиду забруд. речовини в режимі надмірного викиду, год:</label>
+      <input class="form-input" type="number" id="emission-time-input" placeholder="Час роботи джерела викиду забруд. речовини в режимі надмірного викиду, год:" />
   
       <label for="compound-concentr-input">Концентрація сполуки у забрудненому повітрі, мг/м^3:</label>
       <input class="form-input" type="number" id="compound-concentr-input" placeholder="Концентрація сполуки у забрудненому повітрі, мг/м^3" />
@@ -149,6 +156,8 @@
       <input class="form-input" type="number" id="tax-rate-input" placeholder="Ставка податку, грн/т" />
   
       <input type="hidden" id="tax-sum-input" />
+      <input type="hidden" id="damages-input" />
+
   </form>
   
     <button id="add-info-btn">Додати інформацію</button>

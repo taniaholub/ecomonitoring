@@ -32,7 +32,7 @@ class DbService {
         const query = `
           SELECT r.idReport, e.EnterpriseName, p.PollutantName, r.Year, 
                  r.EmissionVolume, r.MassFlow, r.CompConcentration, r.NonCarcinogenRisk, r.CarcinogenRisk,
-                 r.TaxType, r.TaxRate, r.TaxSum
+                 r.TaxType, r.TaxRate, r.TaxSum, r.Damages
           FROM Report r
           JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
           JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
@@ -157,9 +157,8 @@ class DbService {
         const query = `
           INSERT INTO Report 
           (Enterprise_idEnterprise, Pollutant_idPollutant, Year, EmissionVolume, MassFlow, 
-           CompConcentration, NonCarcinogenRisk, CarcinogenRisk, 
-           TaxType, TaxRate, TaxSum)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+           CompConcentration, NonCarcinogenRisk, CarcinogenRisk, TaxType, TaxRate, TaxSum, Damages)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
         connection.query(
           query,
@@ -175,6 +174,7 @@ class DbService {
             info.taxType,
             info.taxRate,
             info.taxSum,
+            info.damages,
           ],
           (err, result) => {
             if (err) {
@@ -322,7 +322,7 @@ class DbService {
           UPDATE Report 
           SET Enterprise_idEnterprise = ?, Pollutant_idPollutant = ?, Year = ?, 
               EmissionVolume = ?, MassFlow = ?,  CompConcentration = ?,
-              NonCarcinogenRisk = ?, CarcinogenRisk = ?, TaxType = ?, TaxRate = ?, TaxSum = ?
+              NonCarcinogenRisk = ?, CarcinogenRisk = ?, TaxType = ?, TaxRate = ?, TaxSum = ?, Damages = ?
           WHERE idReport = ?;
         `;
         connection.query(
@@ -339,6 +339,7 @@ class DbService {
             info.taxType,
             info.taxRate,
             info.taxSum,
+            info.damages,
             id,
           ],
           (err, result) => {
