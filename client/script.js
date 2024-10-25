@@ -231,7 +231,7 @@ function validateInputs() {
 
   // Функція для перевірки видимості поля
   const isVisible = (element) => {
-    return element && element.offsetParent !== null; // Перевіряємо, чи елемент видимий
+    return element && element.offsetParent !== null;
   };
 
   // Масив полів з відповідними повідомленнями
@@ -480,7 +480,7 @@ addBtn.onclick = function () {
       return response.json();
     })
     .then((data) => {
-      console.log("Отримані дані про речовину:", data); // Додаємо для відлагодження
+      console.log("Отримані дані про речовину:", data);
 
       // Перевіряємо наявність даних
       if (!data || typeof data !== "object") {
@@ -507,7 +507,7 @@ addBtn.onclick = function () {
 
         const ladd = (concentration * CR * EF * ED) / (BW * AT * 365);
         const hq = RFC > 0 ? ladd / RFC : 0; // Перевіряємо RFC перед діленням
-        const cr = SF > 0 ? ladd * SF : 0; // Перевіряємо SF перед множенням
+        const cr = SF > 0 ? ladd * SF : 0;
 
         return { hq, cr, ladd };
       }
@@ -527,27 +527,26 @@ addBtn.onclick = function () {
       const qnorm = parseFloat(
         document.querySelector("#emmission-standard-input").value
       ); // затверджений норматив викиду
-      const t = parseFloat(
-        document.querySelector("#emission-time-input").value
-      );
+      const t = parseFloat(document.querySelector("#emission-time-input").value); //тривалість скидання забруднюючих речовин з порушенням норм ГДК
 
       function GetMi(qmi, qnorm, t) {
         return 3.6 * Math.pow(10, -3) * (qmi - qnorm) * t;
       }
 
+      function calculateAi(mpc) {
+        if (mpc > 1) {
+          return 10 / mpc;
+        } else if (mpc <= 0) {
+          return 500;
+        } else {
+          return 1 / mpc;
+        }
+      }
+
       function GetDamages(concentration, mpc) {
         // mpc - це гдк
         const minWage = 1.1 * 6700;
-        let Ai = 1;
-        if (mpc > 1) {
-          Ai = 10 / mpc;
-        }
-        if (mpc <= 0) {
-          Ai = 500;
-        }
-        if (mpc < 1 && mpc != 0) {
-          Ai = 1 / mpc;
-        }
+        const Ai = calculateAi(mpc);
         let Knas = 1.8; // коефіцієнт залежить від чисельності населення, стала
         let Kf = 1.65; // коефіцієнт враховує народогосподарське населення, стала
         let Kt = Knas * Kf; // коефіцієнт, що враховує територіальні соціально-економічні особливості
@@ -557,10 +556,11 @@ addBtn.onclick = function () {
         } else {
           Kzi = concentration / 1;
         }
-
+// let Kzi = concentration > 0 && mpc > 0 ? concentration / mpc : 1;
         const Mi = GetMi(qmi, qnorm, t);
         let damages = Mi * minWage * Ai * Kt * Kzi;
 
+        // прибрати пізніше
         console.log("Значення змінних для обрахунку damages", {
           Mi,
           minWage,
@@ -570,13 +570,66 @@ addBtn.onclick = function () {
           qmi,
           qnorm,
         });
-        // Переконайтеся, що результати є дійсними
 
         return damages;
       }
 
-      const damages = GetDamages(concentration, mpc);
-      document.querySelector("#damages-input").value = damages.toFixed(5);
+      function GetMiWater(concentration, mpc, t){
+        let MiW = 1;
+        let Q = 1;
+        // MiW = (Cif - Cid) * Q * t * Math.pow(10, -6) // в тоннах
+        //Сіф = concentration - середня фактична концентрація, г/м^3
+        //Сід = mpc - дозволена для скиду концентрація(гдк), 
+        // Q - фактичні витрати зворотних вод, м^3/год. Ввід користувача
+        // t - тривалість скидання забруднюючих речовин з порушенням норм ГДК, год
+        MiW = (concentration - mpc) * Q * t * Math.pow(10, -6);
+        return MiW;
+      }
+
+      function GetWaterDamages(concentration, mpc) {
+        // З = Кат * Кр * Кз * Мі * Yi
+        let Kat = 1.5; // коефіцієнт, що враховує категорію водного об'єкта, стала
+        let Kr = 1.21; // регіональний коефіцієнт дефіцитності водних ресурсів поверхневих вод, стала
+        let Kz = 1.5; // коефіцієнт ураженості водної екосистеми, стала
+        const Ai = calculateAi(mpc);
+        const MiW = GetMiWater(concentration, mpc, t); // маса наднормативного скиду забруд. реч. у водний об'єкт
+        let Yп = 1; // проіндексований питомий економ. збиток від забруднення вод.ресурсів у попередньому році
+        let I = 106.5; // індекс інфляції
+
+        let Y = Yп * I/100; // проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році
+        let Yi = Y * Ai;
+
+        let damages = Kat * Kr * Kz * MiW * Yi;
+
+        console.log("Значення змінних для обрахунку damages", {
+          MiW,
+          Yi,
+          Y,
+          Ai,
+        });
+
+        return damages;
+      }
+
+      const damageType = document.querySelector("#damage-type-input").value;
+
+      let damages = 0;
+
+      switch (damageType) {
+        case "Відшкодування збитків за викиди в атмосферне повітря":
+          damages = GetDamages(concentration, mpc);
+          break;
+      
+        case "Відшкодування збитків за викиди у водні об'єкти":
+          damages = GetWaterDamages(concentration, mpc);
+          break;
+      
+        default:
+          alert("Оберіть правильний тип відшкодування збитків.");
+          return;
+      }
+      document.querySelector("#damages-input").value = damages.toFixed(4);
+
 
       // Додавання даних до таблиці Report
       const info = {
@@ -593,7 +646,7 @@ addBtn.onclick = function () {
         taxType: emissionType,
         taxRate: taxRate,
         taxSum: taxSum.toFixed(2),
-        damages: damages.toFixed(5),
+        damages: damages.toFixed(4),
       };
 
       // Надсилаємо дані на сервер для вставки в базу
