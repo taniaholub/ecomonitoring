@@ -288,7 +288,25 @@ function validateInputs() {
       input: "#emission-time-input",
       validate: (value) => parseFloat(value) >= 0,
       message:
-        "Час роботи джерела викиду забруд. речовини в режимі надмірного викиду.",
+        "Час роботи джерела викиду забруд. речовини в режимі надмірного викиду повиннен бути більше нуля.",
+    },
+    {
+      input: "#emmission-standard-input",
+      validate: (value) => parseFloat(value) > 0,
+      message:
+        "Значення затвердженого нормативу викиду речовини повинне бути більше нуля.",
+    },
+    {
+      input: "#Q-input",
+      validate: (value) => parseFloat(value) >= 0,
+      message:
+        "Фактичні витрати зворотних вод не можуть бути від'ємними.",
+    },
+    {
+      input: "#Y-input",
+      validate: (value) => parseFloat(value) > 0,
+      message:
+        "Проіндексований питомий економ. збиток повиннен бути більше нуля.",
     },
   ];
 
@@ -313,7 +331,7 @@ document
   .addEventListener("change", function () {
     const emissionType = this.value;
 
-    const fieldMappings = {
+    const taxFieldMappings = {
       "Викиди у водні об'єкти": {
         show: ["water-waste-fields"],
         hide: [
@@ -352,7 +370,7 @@ document
       },
     };
 
-    const fields = fieldMappings[emissionType] || {
+    const fields = taxFieldMappings[emissionType] || {
       show: [],
       hide: [
         "water-waste-fields",
@@ -380,6 +398,33 @@ document
       taxRateInput.style.display = "block";
     }
   });
+
+  // Показувати/ховати додаткові поля в залежності від вибору типу відшкодування збитків 
+document.querySelector("#damage-type-input").addEventListener("change", function () {
+  const damageType = this.value;
+
+  const damageFieldMappings = {
+    "Відшкодування збитків за викиди в атмосферне повітря": {
+      show: ["air-damage-fields"],
+      hide: ["water-damage-fields"],
+    },
+    "Відшкодування збитків за викиди у водні об'єкти": {
+      show: ["water-damage-fields"],
+      hide: ["air-damage-fields"],
+    },
+  };
+
+  const fields = damageFieldMappings[damageType] || {
+    show: [],
+    hide: ["air-damage-fields", "water-damage-fields"],
+  };
+
+  // Показати вибрані поля
+  fields.show.forEach((id) => (document.getElementById(id).style.display = "block"));
+
+  // Сховати решту полів
+  fields.hide.forEach((id) => (document.getElementById(id).style.display = "none"));
+});
 
 const addBtn = document.querySelector("#add-info-btn");
 
@@ -524,13 +569,19 @@ addBtn.onclick = function () {
 
       // обрахунок розмірів відшкодування збитків
       const qmi = parseFloat(document.querySelector("#mass-flow-input").value); // середнє арифметичне значення результатів вимірювань масової витрати
-      const qnorm = parseFloat(
-        document.querySelector("#emmission-standard-input").value
-      ); // затверджений норматив викиду
+      const qnorm = parseFloat(document.querySelector("#emmission-standard-input").value); // затверджений норматив викиду
       const t = parseFloat(document.querySelector("#emission-time-input").value); //тривалість скидання забруднюючих речовин з порушенням норм ГДК
+      const Q = parseFloat(document.querySelector("#Q-input").value); 
+      const Y = parseFloat(document.querySelector("#Y-input").value); // проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році. 
 
       function GetMi(qmi, qnorm, t) {
+        console.log("Значення змінних для обрахунку damages", {
+          qmi,
+          qnorm,
+          t,
+        });
         return 3.6 * Math.pow(10, -3) * (qmi - qnorm) * t;
+        
       }
 
       function calculateAi(mpc) {
@@ -550,15 +601,14 @@ addBtn.onclick = function () {
         let Knas = 1.8; // коефіцієнт залежить від чисельності населення, стала
         let Kf = 1.65; // коефіцієнт враховує народогосподарське населення, стала
         let Kt = Knas * Kf; // коефіцієнт, що враховує територіальні соціально-економічні особливості
-        let Kzi = 1; // коефіцієнт, що залежить від рівня забрутнення атмосферного повітря
-        if (concentration > 0 && concentration > mpc && mpc != 0) {
-          Kzi = concentration / mpc;
-        } else {
-          Kzi = concentration / 1;
-        }
-// let Kzi = concentration > 0 && mpc > 0 ? concentration / mpc : 1;
+        let Kzi = concentration > 0 && mpc > 0 && mpc != 0 ? concentration / mpc : 1; // коефіцієнт, що залежить від рівня забрутнення атмосферного повітря
         const Mi = GetMi(qmi, qnorm, t);
         let damages = Mi * minWage * Ai * Kt * Kzi;
+
+        alert(
+          `Mi: ${Mi.toFixed(4)}, Knas: ${Knas.toFixed(2)}, Kf: ${Kf.toFixed(2)}, Kt: ${Kt.toFixed(2)},
+           Kzi: ${Kzi.toFixed(3)}, Ai: ${Ai.toFixed(3)}, minWage: ${minWage.toFixed(2)}}`
+        );
 
         // прибрати пізніше
         console.log("Значення змінних для обрахунку damages", {
@@ -574,9 +624,8 @@ addBtn.onclick = function () {
         return damages;
       }
 
-      function GetMiWater(concentration, mpc, t){
+      function GetMiWater(concentration, mpc, t, Q){
         let MiW = 1;
-        let Q = 1;
         // MiW = (Cif - Cid) * Q * t * Math.pow(10, -6) // в тоннах
         //Сіф = concentration - середня фактична концентрація, г/м^3
         //Сід = mpc - дозволена для скиду концентрація(гдк), 
@@ -586,28 +635,21 @@ addBtn.onclick = function () {
         return MiW;
       }
 
-      function GetWaterDamages(concentration, mpc) {
+      function GetWaterDamages(concentration, mpc, Y) {
         // З = Кат * Кр * Кз * Мі * Yi
         let Kat = 1.5; // коефіцієнт, що враховує категорію водного об'єкта, стала
         let Kr = 1.21; // регіональний коефіцієнт дефіцитності водних ресурсів поверхневих вод, стала
         let Kz = 1.5; // коефіцієнт ураженості водної екосистеми, стала
         const Ai = calculateAi(mpc);
-        const MiW = GetMiWater(concentration, mpc, t); // маса наднормативного скиду забруд. реч. у водний об'єкт
-        let Yп = 1; // проіндексований питомий економ. збиток від забруднення вод.ресурсів у попередньому році
-        let I = 106.5; // індекс інфляції
-
-        let Y = Yп * I/100; // проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році
+        const MiW = GetMiWater(concentration, mpc, t, Q); // маса наднормативного скиду забруд. реч. у водний об'єкт
         let Yi = Y * Ai;
 
         let damages = Kat * Kr * Kz * MiW * Yi;
-
-        console.log("Значення змінних для обрахунку damages", {
-          MiW,
-          Yi,
-          Y,
-          Ai,
-        });
-
+        alert(
+          `З = Кат * Кр * Кз * Мі * Yi, 
+           MiW: ${MiW.toFixed(4)}, Kat: ${Kat.toFixed(2)}, Kr: ${Kr.toFixed(2)}, Kz: ${Kz.toFixed(2)},
+           Yi: ${Yi.toFixed(3)}, Ai: ${Ai.toFixed(3)}}`
+        );
         return damages;
       }
 
@@ -621,7 +663,7 @@ addBtn.onclick = function () {
           break;
       
         case "Відшкодування збитків за викиди у водні об'єкти":
-          damages = GetWaterDamages(concentration, mpc);
+          damages = GetWaterDamages(concentration, mpc, Y);
           break;
       
         default:
