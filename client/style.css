@@ -1,15 +1,21 @@
-h1{
-  background-color: #204120; 
-  border: 2px solid #051b02; 
-  padding: 40px; 
-  text-align: center; 
+h1 {
+  background-color: #204120;
+  border: 2px solid #051b02;
   padding: 0;
+  text-align: center;
   color: #eceeed;
 }
-table {
-  margin: 0 auto; 
+
+#emissionsTable {
+  margin: 0 auto;
   border-collapse: collapse;
-  width: 50%;
+  width: 30%;
+}
+
+#pollutantTable, #enterpriseTable {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 40%;
 }
 
 th,
@@ -17,6 +23,10 @@ td {
   padding: 10px;
   border: medium groove green;
   text-align: center;
+}
+
+tbody tr:hover {
+  background-color: #f0f0f0;
 }
 
 thead {
@@ -36,45 +46,45 @@ button:hover {
   background-color: #45a049;
 }
 
-form {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-input {
-  display: block;
-  margin-bottom: 5px;
-  padding: 10px;
-  width: 70%;
-  box-sizing: border-box;
-}
-
-#addEmissionForm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  width: 70%;
-}
-
 h1,
 h2 {
   text-align: center;
 }
 
-#editTable {
+center {
   display: block;
-  margin: 20px auto;
+  width: 100%;
 }
 
-select {
+form {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+label {
   display: block;
+  font-weight: normal;
+  margin-top: 10px;
   margin-bottom: 5px;
+  text-align: left;
+  width: 100%;
+}
+
+input,
+select,
+.form-input,
+#tax-type-input,
+#waste-disposal-fields select,
+#correc-coeff-input,
+#waste-disposal-coeff,
+#radioactive-fields select {
+  display: block;
+  width: 100%;
   padding: 10px;
-  width: 70%;
+  margin-bottom: 10px;
   box-sizing: border-box;
   background-color: white;
   border: 1px solid rgb(144, 144, 144);
@@ -82,53 +92,56 @@ select {
   color: #333;
 }
 
+/* Additional fields containers */
+#water-waste-fields,
+#waste-disposal-fields,
+#radioactive-fields,
+#radioact-waste-stor-fields,
+#air-damage-fields,
+#water-damage-fields {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+input:focus,
 select:focus {
   outline: none;
   border-color: #45a049;
 }
 
-label {
-  font-weight: normal;
-  display: block;
-  margin-top: 10px;
-  text-align: left;
-  width: 70%;
-}
-
-.form-input {
-  display: block;
-  margin-bottom: 5px; 
-  padding: 10px;
-  width: 70%;
-  box-sizing: border-box;
-  border: 1px solid rgb(144, 144, 144);
-  font-size: 14px;
-  color: #333;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #45a049; 
-}
-
 .info-icon {
-  margin-left: 5px; 
-  font-size: 18px; 
-  color: #04893c; 
-  cursor: pointer; 
+  margin-left: 5px;
+  font-size: 18px;
+  color: #04893c;
+  cursor: pointer;
 }
 
 .tooltip {
-  display: none; 
-  position: absolute; 
-  background-color: rgb(189, 189, 189); 
-  border: 1px solid #ccc; 
-  padding: 10px; 
-  z-index: 10; 
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+  display: none;
+  position: absolute;
+  background-color: rgb(189, 189, 189);
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .info-icon:hover + .tooltip {
-  display: block; /* Показати tooltip при наведенні */
+  display: block;
 }
 
+@media (max-width: 600px) {
+  table {
+    width: 100%;
+  }
+  
+  form {
+    padding: 0 10px;
+  }
+  
+  input,
+  select,
+  .form-input {
+    width: 100%;
+  }
+}

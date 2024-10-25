@@ -403,6 +403,16 @@ document
     const emissionType = this.value;
 
     const taxFieldMappings = {
+      "Викиди в атмосферне повітря": {
+        hide: [
+          "water-waste-fields",
+          "waste-disposal-fields",
+          "radioactive-fields",
+          "radioact-waste-stor-fields"
+        ],
+        show: ["tax-rate-input"]
+      },
+      
       "Викиди у водні об'єкти": {
         show: ["water-waste-fields"],
         hide: [
@@ -441,33 +451,25 @@ document
       },
     };
 
-    const fields = taxFieldMappings[emissionType] || {
-      show: [],
-      hide: [
-        "water-waste-fields",
-        "waste-disposal-fields",
-        "radioactive-fields",
-        "radioact-waste-stor-fields",
-      ],
-    };
+    const fields = taxFieldMappings[emissionType] || { show: [], hide: [] };
 
-    // Показати вибрані поля
-    fields.show.forEach(
-      (id) => (document.getElementById(id).style.display = "block")
-    );
+    fields.show.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = "block";
+      }
+    });
 
-    // Сховати решту полів
-    fields.hide.forEach(
-      (id) => (document.getElementById(id).style.display = "none")
-    );
+    fields.hide.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = "none";
+      }
+    });
 
-    // Показати або сховати поле для ставки податку
+    //Для ставки податку
     const taxRateInput = document.getElementById("tax-rate-input");
-    if (fields.hideTax) {
-      taxRateInput.style.display = "none";
-    } else {
-      taxRateInput.style.display = "block";
-    }
+    taxRateInput.style.display = fields.hideTax ? "none" : "block";
   });
 
   // Показувати/ховати додаткові поля в залежності від вибору типу відшкодування збитків 
