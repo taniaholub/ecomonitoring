@@ -534,11 +534,11 @@ function calculateTax(emissionType, emissionVolume, taxRate, additionalParams = 
 
 // Health risk calculation functions
 function calculateHealthRisk(concentration, SF, RFC) {
-  const CR = 20;
-  const EF = 350;
-  const ED = 70;
-  const BW = 70;
-  const AT = 70;
+  const CR = 20; // швидкість надходження повітря до організму
+  const EF = 350; // частота впливу, днів на рік
+  const ED = 70; // тривалість впливу, років
+  const BW = 70; // середня маса тіла людини
+  const AT = 70; // період усереднення експозиції, років
 
   const ladd = (concentration * CR * EF * ED) / (BW * AT * 365);
   const hq = RFC > 0 ? ladd / RFC : 0;
@@ -563,35 +563,39 @@ function GetMi(qmi, qnorm, t) {
 }
 
 function GetMiWater(concentration, mpc, t, Q) {
+  // MiW = (Cif - Cid) * Q * t * Math.pow(10, -6) // в тоннах
+        //Сіф = concentration - середня фактична концентрація, г/м^3
+        //Сід = mpc - дозволена для скиду концентрація(гдк), 
+        // Q - фактичні витрати зворотних вод, м^3/год. Ввід користувача
+        // t - тривалість скидання забруднюючих речовин з порушенням норм ГДК, год
   return (concentration - mpc) * Q * t * Math.pow(10, -6);
 }
 
 function calculateDamages(damageType, params) {
   let damages = 0;
-
+// mpc - це гдк
   if (damageType === "Відшкодування збитків за викиди в атмосферне повітря") {
     const minWage = 1.1 * 6700;
     const Ai = calculateAi(params.mpc);
-    const Knas = 1.8;
-    const Kf = 1.65;
-    const Kt = Knas * Kf;
-    const Kzi = params.concentration > 0 && params.mpc > 0 && params.mpc != 0 ? 
+    const Knas = 1.8; // коефіцієнт залежить від чисельності населення, стала
+    const Kf = 1.65;  // коефіцієнт враховує народогосподарське населення, стала
+    const Kt = Knas * Kf; // коефіцієнт, що враховує територіальні соціально-економічні особливості
+    const Kzi = params.concentration > 0 && params.mpc > 0 && params.mpc != 0 ?  // коефіцієнт, що залежить від рівня забрутнення атмосферного повітря
       params.concentration / params.mpc : 1;
     const Mi = GetMi(params.qmi, params.qnorm, params.t);
     
     damages = Mi * minWage * Ai * Kt * Kzi;
     
-    // Alert for debugging
     alert(
       `Mi: ${Mi.toFixed(4)}, Knas: ${Knas.toFixed(2)}, Kf: ${Kf.toFixed(2)}, Kt: ${Kt.toFixed(2)},
        Kzi: ${Kzi.toFixed(3)}, Ai: ${Ai.toFixed(3)}, minWage: ${minWage.toFixed(2)}`
     );
   } else if (damageType === "Відшкодування збитків за викиди у водні об'єкти") {
-    const Kat = 1.5;
-    const Kr = 1.21;
-    const Kz = 1.5;
+    const Kat = 1.5; // коефіцієнт, що враховує категорію водного об'єкта, стала
+    const Kr = 1.21; // регіональний коефіцієнт дефіцитності водних ресурсів поверхневих вод, стала
+    const Kz = 1.5; // коефіцієнт ураженості водної екосистеми, стала
     const Ai = calculateAi(params.mpc);
-    const MiW = GetMiWater(params.concentration, params.mpc, params.t, params.Q);
+    const MiW = GetMiWater(params.concentration, params.mpc, params.t, params.Q); // маса наднормативного скиду забруд. реч. у водний об'єкт
     const Yi = params.Y * Ai;
     
     damages = Kat * Kr * Kz * MiW * Yi;
@@ -677,12 +681,12 @@ addBtn.onclick = function () {
       // Calculate damages
       const damageParams = {
         concentration,
-        mpc,
-        qmi: parseFloat(document.querySelector("#mass-flow-input").value),
-        qnorm: parseFloat(document.querySelector("#emmission-standard-input").value),
-        t: parseFloat(document.querySelector("#emission-time-input").value),
+        mpc, //ГДК
+        qmi: parseFloat(document.querySelector("#mass-flow-input").value), // середнє арифметичне значення результатів вимірювань масової витрати
+        qnorm: parseFloat(document.querySelector("#emmission-standard-input").value), // затверджений норматив викиду
+        t: parseFloat(document.querySelector("#emission-time-input").value), //тривалість скидання забруднюючих речовин з порушенням норм ГДК
         Q: parseFloat(document.querySelector("#Q-input").value),
-        Y: parseFloat(document.querySelector("#Y-input").value)
+        Y: parseFloat(document.querySelector("#Y-input").value)// проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році. 
       };
 
       const damageType = document.querySelector("#damage-type-input").value;
