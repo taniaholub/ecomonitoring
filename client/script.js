@@ -17,15 +17,19 @@ function loadEnterpriseOptions() {
     .then((response) => response.json())
     .then((data) => {
       const select1 = document.getElementById("object-name-input");
-      select1.innerHTML = '<option value="">Виберіть підприємство</option>';
       const select2 = document.getElementById("enterprise-name-input");
-      select2.innerHTML = '<option value="">Виберіть підприємство</option>';
+      if (select1) {
+        select1.innerHTML = '<option value="">Виберіть підприємство</option>';
+      }
+      if (select2) {
+        select2.innerHTML = '<option value="">Виберіть підприємство</option>';
+      }
       data.forEach((enterprise) => {
         const option = document.createElement("option");
         option.value = enterprise.EnterpriseName;
         option.textContent = enterprise.EnterpriseName;
-        select1.appendChild(option);
-        select2.appendChild(option);
+        if (select1) select1.appendChild(option.cloneNode(true));
+        if (select2) select2.appendChild(option);
       });
     });
 }
@@ -35,18 +39,23 @@ function loadPollutantOptions() {
     .then((response) => response.json())
     .then((data) => {
       const select1 = document.getElementById("pollutant-name-input");
-      select1.innerHTML = '<option value="">Виберіть речовину</option>';
       const select2 = document.getElementById("pollutant-input");
-      select2.innerHTML = '<option value="">Виберіть речовину</option>';
+      if (select1) {
+        select1.innerHTML = '<option value="">Виберіть речовину</option>';
+      }
+      if (select2) {
+        select2.innerHTML = '<option value="">Виберіть речовину</option>';
+      }
       data.forEach((pollutant) => {
         const option = document.createElement("option");
         option.value = pollutant.PollutantName;
         option.textContent = pollutant.PollutantName;
-        select1.appendChild(option);
-        select2.appendChild(option);
+        if (select1) select1.appendChild(option.cloneNode(true));
+        if (select2) select2.appendChild(option);
       });
     });
 }
+
 
 document
   .querySelector("table tbody")
@@ -869,7 +878,7 @@ function loadEmergencyDamageTable() {
       const table = document.querySelector("#emergencyDamageTable tbody");
 
       if (data.length === 0) {
-        table.innerHTML = "<tr><td class='no-data' colspan='8'>No Data</td></tr>";
+        table.innerHTML = "<tr><td class='no-data' colspan='7'>No Data</td></tr>";
         return;
       }
 
@@ -883,7 +892,7 @@ function loadEmergencyDamageTable() {
         tableHtml += `<td>${TypeOfDamage}</td>`;
         tableHtml += `<td>${DamageAmount}</td>`;
         tableHtml += `<td><button class="delete-btn" onclick="deleteEmergencyDamage(${idDamage})">Видалити</button></td>`;
-        tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
+        // tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
         tableHtml += "</tr>";
       });
       table.innerHTML = tableHtml;
@@ -910,6 +919,10 @@ function loadPollutantTable() {
           <td>${pollutant.MPC}</td>
           <td>${pollutant.RFC}</td>
           <td>${pollutant.SF}</td>
+          <td>${pollutant.SpecificEmissions}</td>
+          <td>${pollutant.Tax}</td>
+          <td>${pollutant.HazardCoefficient}</td>
+          <td>${pollutant.Kn}</td>
           <td><button class="delete-btn" onclick="deletePollutant(${
             pollutant.idPollutant
           })">Видалити</button></td>
@@ -1018,6 +1031,10 @@ document
       mpc: document.querySelector("#new-mpc").value,
       rfc: document.querySelector("#new-rfc").value,
       sf: document.querySelector("#new-sf").value,
+      specificEmissions: document.querySelector("#new-specific-emissions").value,
+      tax: document.querySelector("#new-tax").value,
+      hazardCoefficient: document.querySelector("#new-hazard-coefficient").value,
+      Kn: document.querySelector("#new-Kn").value,
     };
 
     fetch("http://localhost:5000/addPollutant", {

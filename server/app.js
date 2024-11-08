@@ -65,10 +65,10 @@ app.post("/addEnterprise", (req, res) => {
 });
 
 app.post("/addPollutant", (req, res) => {
-  const { name, hazardClass, mpc, rfc, sf} = req.body;
+  const { name, hazardClass, mpc, rfc, sf, specificEmissions, tax, hazardCoefficient, Kn } = req.body;
   const db = DbService.getDbServiceInstance();
 
-  db.addPollutant({ name, hazardClass, mpc, rfc, sf})
+  db.addPollutant({ name, hazardClass, mpc, rfc, sf, specificEmissions, tax, hazardCoefficient, Kn })
     .then(() => res.json({ success: true }))
     .catch((err) => {
       console.error("Error adding pollutant:", err);

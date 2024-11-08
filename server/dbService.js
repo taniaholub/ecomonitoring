@@ -265,16 +265,16 @@ class DbService {
   }
 
   async addPollutant(pollutant) {
-    const { name, hazardClass, mpc, rfc, sf } = pollutant;
+    const { name, hazardClass, mpc, rfc, sf, specificEmissions, tax, hazardCoefficient, Kn } = pollutant;
     const query = `
-      INSERT INTO Pollutant (PollutantName, HazardClass, MPC, RFC, SF)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO Pollutant (PollutantName, HazardClass, MPC, RFC, SF, SpecificEmissions, Tax, HazardCoefficient, Kn)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     return new Promise((resolve, reject) => {
       connection.query(
         query,
-        [name, hazardClass, mpc, rfc, sf],
+        [name, hazardClass, mpc, rfc, sf, specificEmissions, tax, hazardCoefficient, Kn],
         (err, result) => {
           if (err) {
             console.error("Error in addPollutant:", err);

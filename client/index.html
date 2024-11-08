@@ -200,7 +200,7 @@
           <th>Тип завданої шкоди</th>
           <th>Сума збитків</th>
           <th>Видалити</th>
-          <th>Редагувати</th>
+          <!-- <th>Редагувати</th> -->
         </tr>
       </thead>
       <tbody>
@@ -248,6 +248,10 @@
           <th>ГДК</th>
           <th>RFC - безпечний рівень впливу речовини</th>
           <th>SF - фактор канцерогенного потенціалу сполуки</th>
+          <th>SpecificEmissions- питомий показник викиду(qi)</th>
+          <th>Tax - ставка податку(Сп)</th>
+          <th>HazardCoefficient - коефіцієнт класу небезпеки(Кнеб)</th>
+          <th>Kn - коефіцієнт небезпечності</th>
           <th>Видалити</th>
         </tr>
       </thead>
@@ -262,6 +266,10 @@
       <input type="number" id="new-mpc" placeholder="ГДК" step="any" required />
       <input type="number" id="new-rfc" placeholder="RFC - безпечний рівень впливу речовини" step="any" required />
       <input type="number" id="new-sf" placeholder="SF - фактор канцерогенного потенціалу сполуки" step="any" required />
+      <input type="text" id="new-specific-emissions" placeholder="SpecificEmissions- питомий показник викиду(qi)" required />
+      <input type="number" id="new-tax" placeholder="Tax - ставка податку(Сп)" step="any" required />
+      <input type="number" id="new-hazard-coefficient" placeholder="HazardCoefficient - коефіцієнт класу небезпеки(Кнеб)" step="any" required />
+      <input type="number" id="new-Kn" placeholder="Kn - коефіцієнт небезпечності (КН)" step="any" required />
       <button type="submit">Додати речовину</button>
     </form>
 
