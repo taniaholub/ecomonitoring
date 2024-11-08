@@ -220,7 +220,7 @@ class DbService {
   }
   
   async addEmergencyDamage(emergencyDamage) {
-    const { objectName, pollutantName, damageYear, damageType, damageAmount } = emergencyDamage;
+    const {objectName, pollutantName, damageYear, damageType, damageAmount } = emergencyDamage;
     
     // Отримуємо ID підприємства та забруднюючої речовини
     const enterpriseId = await this.getEnterpriseId(objectName);
