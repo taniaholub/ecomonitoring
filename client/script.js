@@ -953,39 +953,111 @@ function loadEnterpriseTable() {
     });
 }
 
-// Додавання нового поля до таблиці збитків
-document
-  .querySelector("#emergency-damage-form")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
 
-    const newDamage = {
-      objectName: document.querySelector("#enterprise-name-input").value,
-      pollutantName: document.querySelector("#pollutant-input").value,
-      damageYear: document.querySelector("#damage-year-input").value,
-      damageType: document.querySelector("#emergency-damage-type-input").value,
-      damageAmount: document.querySelector("#damage-amount").value,
+
+// Функція обчислення питомого показника викиду
+function calculateMi(specificEmissions, burntPollutantMass) { 
+  // Мі = qi * Мсі
+  // specificEmissions = qi - питомий показник викиду забруднюючої речовини, т/т
+  // burntPollutantMass = Мсі - маса згорілої речовини, т
+  return specificEmissions * burntPollutantMass;
+}
+
+// Функція обчислення суми збитків при надзвичайній ситуації
+function calculateEmergDamageAmount(Mi, tax, hazardCoefficient, impactCoeff, eventScaleCoeff) { 
+   // Рш = Мі * Сп * Кнеб * Кв * Кмп * Кпп
+   // tax  = Сп в таблиці pollutant, грн/т
+   // hazardCoefficient = Кнеб, в таблиці pollutant
+   // impactCoeff = Кв - коефіцієнт впливу, вводить користувач з 4 варіантів , год
+   // eventScaleCoeff = Кмп - коефіцієнт масштабу подій, вводить користувач з 5 варіантів , тон або Га
+  const Kpp = 10; // Коефіцієнт, що залежить від характеру подій
+  return Mi * tax * hazardCoefficient * impactCoeff * eventScaleCoeff * Kpp;
+}
+
+document.querySelector("#pollutant-input").addEventListener("change", function () {
+  const pollutantName = document.querySelector("#pollutant-input").value;
+
+  fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (!data || typeof data !== "object") {
+      throw new Error("Невірний формат даних від сервера");
+    }
+
+    // Отримання значень з об'єкта 'data' або встановлення 0, якщо значення відсутнє
+    const tax = parseFloat(data.Tax) || 0;
+    const hazardCoefficient = parseFloat(data.HazardCoefficient) || 0;
+    const specificEmissions = parseFloat(data.SpecificEmissions) || 0;
+
+    pollutantData = {
+      tax: tax,
+      hazardCoefficient: hazardCoefficient,
+      specificEmissions: specificEmissions
     };
+  })
+  .catch(error => console.error("Помилка завантаження даних речовини:", error));
+});
 
-    fetch("http://localhost:5000/addEmergencyDamage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newDamage),
+// Обробка форми для додавання нового запису
+document.querySelector("#emergency-damage-form").addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  // Перевірка, чи завантажені дані речовини для обчислень
+  if (!pollutantData) {
+    alert("Будь ласка, виберіть речовину для розрахунків.");
+    return;
+  }
+
+  // Зчитуємо значення, введені користувачем
+  const burntPollutantMass = parseFloat(document.querySelector("#burnt-pollutant-mass-input").value) || 0;
+  const impactCoeff = document.querySelector("#impact-coeff-input").value;
+  const eventScaleCoeff = document.querySelector("#event-scale-coeff-input").value;
+
+  // Обчислення Мі
+  const Mi = calculateMi(pollutantData.specificEmissions, burntPollutantMass);
+
+  // Обчислення суми збитків
+  const damageAmount = calculateEmergDamageAmount(
+    Mi,
+    pollutantData.tax,
+    pollutantData.hazardCoefficient,
+    impactCoeff,
+    eventScaleCoeff
+  );
+
+  const newDamage = {
+    objectName: document.querySelector("#enterprise-name-input").value,
+    pollutantName: document.querySelector("#pollutant-input").value,
+    damageYear: document.querySelector("#damage-year-input").value,
+    damageType: document.querySelector("#emergency-damage-type-input").value,
+    damageAmount: damageAmount.toFixed(2),
+  };
+
+  fetch("http://localhost:5000/addEmergencyDamage", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newDamage),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Запис додано!");
+        clearFormInputs("emergency-damage-form");
+        loadEmergencyDamageTable(); 
+      } else {
+        alert("Не вдалося додати запис.");
+      }
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Запис додано!");
-          clearFormInputs("emergency-damage-form");
-          loadEmergencyDamageTable(); // Перезавантажуємо таблицю збитків
-        } else {
-          alert("Не вдалося додати запис.");
-        }
-      })
-      .catch((error) => console.error("Error adding emergency damage:", error));
-  });
+    .catch((error) => console.error("Помилка при додаванні аварійного збитку:", error));
+});
+
 
 // Додавання нового підприємства
 document

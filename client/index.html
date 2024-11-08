@@ -189,12 +189,11 @@
 
 
     <br /><br /><br />
-
     <table id="emergencyDamageTable">
       <thead>
         <tr>
           <th>№</th>
-          <th>Підприєство</th>
+          <th>Підприємство</th>
           <th>Забруднююча речовина</th>
           <th>Рік</th>
           <th>Тип завданої шкоди</th>
@@ -215,15 +214,15 @@
       <select class="form-input" id="enterprise-name-input">
         <option value="">Виберіть підприємство</option>
       </select>
-  
+    
       <label for="pollutant-input">Назва забруднюючої речовини:</label>
       <select class="form-input" id="pollutant-input">
         <option value="">Виберіть речовину</option>
       </select>
-  
+    
       <label for="damage-year-input">Рік:</label>
       <input class="form-input" type="text" id="damage-year-input" placeholder="Рік" />
-
+    
       <label for="emergency-damage-type-input">Оберіть тип завданої шкоди:</label>
       <select class="form-input" id="emergency-damage-type-input">
         <option value="" disabled selected hidden>Оберіть тип...</option>
@@ -231,9 +230,35 @@
         <option value="Шкода для водних ресурсів">Розмір шкоди за викиди у водні ресурси</option>
         <option value="Шкода для земельних ресурсів">Розмір шкоди за викиди в земельні ресурси</option>
       </select>
-      <input type="number" id="damage-amount" placeholder="Сума збитків"/>
+      <!-- Додаткові поля "Розмір шкоди для атмосферного повітря" -->
+               <!-- add later style="display: none;" -->
+      <div id="emergency-air-damage-fields" > 
+        <label for="burnt-pollutant-mass-input">Мсі - маса згорілої речовини, т:</label>
+        <input class="form-input" type="number" id="burnt-pollutant-mass-input" placeholder="Мсі:" />
+
+        <label for="impact-coeff-input">Кв - коефіцієнт впливу, год:</label>
+        <select class="form-input" id="impact-coeff-input">
+          <option value="3">3 - у разі не визначення тривалості подій</option>
+          <option value="4">4 - до 12 год</option>
+          <option value="5">5 - від 12 до 24 год</option>
+          <option value="6">6 - більше 24 год</option>
+        </select>
+
+        <label for="event-scale-coeff-input">Кмп - коефіцієнт масштабу подій, тон або Га:</label>
+        <select class="form-input" id="event-scale-coeff-input">
+          <option value="1.2">1,2 - у разі не визначення або до 50</option>
+          <option value="2">2 - від 50 до 150</option>
+          <option value="3">3 - від 150 до 500</option>
+          <option value="4">4 - від 500 до 1000</option>
+          <option value="5">5 - від 1000</option>
+        </select>
+      </div>
+      
+      <input type="hidden" id="damage-amount"/>
+
       <button type="submit">Додати поле</button>
     </form>
+
 
 
     <br /><br /><br />
@@ -248,7 +273,7 @@
           <th>ГДК</th>
           <th>RFC - безпечний рівень впливу речовини</th>
           <th>SF - фактор канцерогенного потенціалу сполуки</th>
-          <th>SpecificEmissions- питомий показник викиду(qi)</th>
+          <th>SpecificEmissions - питомий показник викиду(qi)</th>
           <th>Tax - ставка податку(Сп)</th>
           <th>HazardCoefficient - коефіцієнт класу небезпеки(Кнеб)</th>
           <th>Kn - коефіцієнт небезпечності</th>
