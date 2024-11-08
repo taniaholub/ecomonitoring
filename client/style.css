@@ -12,7 +12,7 @@ h1 {
   width: 30%;
 }
 
-#pollutantTable, #enterpriseTable {
+#pollutantTable, #enterpriseTable, #emergencyDamageTable {
   margin: 0 auto;
   border-collapse: collapse;
   width: 40%;

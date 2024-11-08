@@ -76,6 +76,20 @@ app.post("/addPollutant", (req, res) => {
     });
 });
 
+app.post("/addEmergencyDamage", (req, res) => {
+  const { objectName, pollutantName, damageYear, damageType, damageAmount } = req.body;
+  const db = DbService.getDbServiceInstance();
+
+  // Викликаємо метод для додавання нового запису
+  db.addEmergencyDamage({ objectName, pollutantName, damageYear, damageType, damageAmount })
+    .then(() => res.json({ success: true }))
+    .catch((err) => {
+      console.error("Error adding emergency damage:", err);
+      res.status(500).json({ success: false, message: "Failed to add emergency damage" });
+    });
+});
+
+
 
 // Отримання всіх даних
 app.get("/getAll", (req, res) => {
@@ -136,6 +150,21 @@ app.get("/getAllEnterprises", (request, response) => {
       response.status(500).json({ error: err.message });
     });
 });
+
+// app.js
+
+app.get("/getAllEmergencyDamages", (req, res) => {
+  const db = DbService.getDbServiceInstance();
+
+  db.getAllEmergencyDamages()
+    .then((data) => res.json({ data }))
+    
+    .catch((err) => {
+      console.error("Error in /getAllEmergencyDamages route:", err);
+      res.status(500).json({ message: "Error fetching emergency damages data" });
+    });
+});
+
 
 // Оновлення запису
 app.patch("/update", (req, res) => {

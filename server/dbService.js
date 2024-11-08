@@ -147,6 +147,29 @@ class DbService {
     }
   }
 
+  // Отримання всіх даних з таблиці EmergencyDamage
+  async getAllEmergencyDamages() {
+    try {
+      const response = await new Promise((resolve, reject) => {
+        const query = `
+          SELECT ed.idDamage, e.EnterpriseName, p.PollutantName, ed.Year, 
+                 ed.TypeOfDamage, ed.DamageAmount
+          FROM EmergencyDamage ed
+          JOIN Enterprise e ON ed.Enterprise_idEnterprise = e.idEnterprise
+          JOIN Pollutant p ON ed.Pollutant_idPollutant = p.idPollutant
+        `;
+        connection.query(query, (err, results) => {
+          if (err) reject(new Error(err.message));
+          resolve(results);
+        });
+      });
+      return response;
+    } catch (error) {
+      console.error("Error in getAllEmergencyDamages:", error);
+      throw error;
+    }
+  }
+  
   // Вставка нової інформації
   async insertNewInfo(info) {
     try {
@@ -195,7 +218,34 @@ class DbService {
       throw error;
     }
   }
-
+  
+  async addEmergencyDamage(emergencyDamage) {
+    const { objectName, pollutantName, damageYear, damageType, damageAmount } = emergencyDamage;
+    
+    // Отримуємо ID підприємства та забруднюючої речовини
+    const enterpriseId = await this.getEnterpriseId(objectName);
+    const pollutantId = await this.getPollutantId(pollutantName);
+  
+    if (!enterpriseId || !pollutantId) {
+      throw new Error("Invalid enterprise or pollutant");
+    }
+    
+    const query = `
+      INSERT INTO EmergencyDamage (Enterprise_idEnterprise, Pollutant_idPollutant, Year, TypeOfDamage, DamageAmount)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    
+    return new Promise((resolve, reject) => {
+      connection.query(query, [enterpriseId, pollutantId, damageYear, damageType, damageAmount], (err, result) => {
+        if (err) {
+          console.error("Error in addEmergencyDamage:", err);
+          reject(err);
+        }
+        resolve(result.insertId);
+      });
+    });
+  }
+  
   async addEnterprise(enterprise) {
     const { name, address, activityType } = enterprise;
     const query = `
@@ -368,13 +418,17 @@ class DbService {
           FROM Report r
           JOIN Enterprise e ON r.Enterprise_idEnterprise = e.idEnterprise
           JOIN Pollutant p ON r.Pollutant_idPollutant = p.idPollutant
-          WHERE e.EnterpriseName LIKE ? OR p.PollutantName LIKE ?;
+          WHERE e.EnterpriseName LIKE ? 
+            OR p.PollutantName LIKE ?
+            OR r.Year = ?;
         `;
+  
         const searchPattern = `%${query}%`;
-
+        const isYearQuery = !isNaN(query) ? query : null; // Якщо query є числом, використовуємо його для пошуку за роком
+  
         connection.query(
           sqlQuery,
-          [searchPattern, searchPattern],
+          [searchPattern, searchPattern, isYearQuery],
           (err, results) => {
             if (err) reject(new Error(err.message));
             resolve(results);
@@ -387,6 +441,7 @@ class DbService {
       throw error;
     }
   }
+  
 
   // Сортування за полем
   async sortByField(field) {

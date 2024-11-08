@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   fetchAndLoadData();
-  loadEnterprises();
-  loadPollutants();
+  loadEnterpriseOptions();
+  loadPollutantOptions();
   loadPollutantTable();
   loadEnterpriseTable();
 });
@@ -12,32 +12,38 @@ function fetchAndLoadData() {
     .then((data) => loadHTMLTable(data["data"]));
 }
 
-function loadEnterprises() {
+function loadEnterpriseOptions() {
   fetch("http://localhost:5000/getEnterprises")
     .then((response) => response.json())
     .then((data) => {
-      const select = document.getElementById("object-name-input");
-      select.innerHTML = '<option value="">Виберіть підприємство</option>';
+      const select1 = document.getElementById("object-name-input");
+      select1.innerHTML = '<option value="">Виберіть підприємство</option>';
+      const select2 = document.getElementById("enterprise-name-input");
+      select2.innerHTML = '<option value="">Виберіть підприємство</option>';
       data.forEach((enterprise) => {
         const option = document.createElement("option");
         option.value = enterprise.EnterpriseName;
         option.textContent = enterprise.EnterpriseName;
-        select.appendChild(option);
+        select1.appendChild(option);
+        select2.appendChild(option);
       });
     });
 }
 
-function loadPollutants() {
+function loadPollutantOptions() {
   fetch("http://localhost:5000/getPollutants")
     .then((response) => response.json())
     .then((data) => {
-      const select = document.getElementById("pollutant-name-input");
-      select.innerHTML = '<option value="">Виберіть речовину</option>';
+      const select1 = document.getElementById("pollutant-name-input");
+      select1.innerHTML = '<option value="">Виберіть речовину</option>';
+      const select2 = document.getElementById("pollutant-input");
+      select2.innerHTML = '<option value="">Виберіть речовину</option>';
       data.forEach((pollutant) => {
         const option = document.createElement("option");
         option.value = pollutant.PollutantName;
         option.textContent = pollutant.PollutantName;
-        select.appendChild(option);
+        select1.appendChild(option);
+        select2.appendChild(option);
       });
     });
 }
@@ -550,7 +556,7 @@ function calculateHealthRisk(concentration, SF, RFC) {
 }
 
 // Damage calculation helper functions
-function calculateAi(mpc) {
+function calculateAi(mpc) { // безрозмірний показник відносної небезпечності i-тої забруднюючої речовини
   if (mpc > 1) {
     return 10 / mpc;
   } else if (mpc <= 0) {
@@ -602,7 +608,6 @@ function calculateDamages(damageType, params) {
     
     damages = Kat * Kr * Kz * MiW * Yi;
     
-    // Alert for debugging
     alert(
       `З = Кат * Кр * Кз * Мі * Yi, 
        MiW: ${MiW.toFixed(4)}, Kat: ${Kat.toFixed(2)}, Kr: ${Kr.toFixed(2)}, Kz: ${Kz.toFixed(2)},
@@ -855,6 +860,42 @@ function loadHTMLTable(data) {
   table.innerHTML = tableHtml;
 }
 
+
+function loadEmergencyDamageTable() {
+  fetch("http://localhost:5000/getAllEmergencyDamages")
+    .then((response) => response.json())
+    .then((responseData) => {
+      const data = responseData.data; // Access the 'data' property
+      const table = document.querySelector("#emergencyDamageTable tbody");
+
+      if (data.length === 0) {
+        table.innerHTML = "<tr><td class='no-data' colspan='8'>No Data</td></tr>";
+        return;
+      }
+
+      let tableHtml = "";
+      data.forEach(({ idDamage, EnterpriseName, PollutantName, Year, TypeOfDamage, DamageAmount }) => {
+        tableHtml += "<tr>";
+        tableHtml += `<td>${idDamage}</td>`;
+        tableHtml += `<td>${EnterpriseName}</td>`;
+        tableHtml += `<td>${PollutantName}</td>`;
+        tableHtml += `<td>${Year}</td>`;
+        tableHtml += `<td>${TypeOfDamage}</td>`;
+        tableHtml += `<td>${DamageAmount}</td>`;
+        tableHtml += `<td><button class="delete-row-btn" data-id=${idDamage}>Delete</button></td>`;
+        tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
+        tableHtml += "</tr>";
+      });
+      table.innerHTML = tableHtml;
+    })
+    .catch((error) => console.error("Error loading emergency damages:", error));
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadEmergencyDamageTable();
+});
+
 function loadPollutantTable() {
   fetch("http://localhost:5000/getAllPollutants")
     .then((response) => response.json())
@@ -899,37 +940,39 @@ function loadEnterpriseTable() {
     });
 }
 
-function deletePollutant(id) {
-  fetch(`http://localhost:5000/deletePollutant/${id}`, {
-    method: "DELETE",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Речовину видалено!");
-        loadPollutantTable(); // Перезавантажуємо таблицю речовин
-      } else {
-        alert("Не вдалося видалити речовину.");
-      }
-    })
-    .catch((error) => console.error("Error deleting pollutant:", error));
-}
+// Додавання нового поля до таблиці збитків
+document
+  .querySelector("#emergency-damage-form")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
 
-function deleteEnterprise(id) {
-  fetch(`http://localhost:5000/deleteEnterprise/${id}`, {
-    method: "DELETE",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Підприємство видалено!");
-        loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
-      } else {
-        alert("Не вдалося видалити підприємство.");
-      }
+    const newDamage = {
+      objectName: document.querySelector("#enterprise-name-input").value,
+      pollutantName: document.querySelector("#pollutant-input").value,
+      damageYear: document.querySelector("#damage-year-input").value,
+      damageType: document.querySelector("#emergency-damage-type-input").value,
+      damageAmount: document.querySelector("#damage-amount").value,
+    };
+
+    fetch("http://localhost:5000/addEmergencyDamage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newDamage),
     })
-    .catch((error) => console.error("Error deleting enterprise:", error));
-}
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Запис додано!");
+          clearFormInputs("emergency-damage-form");
+          loadEmergencyDamageTable(); // Перезавантажуємо таблицю збитків
+        } else {
+          alert("Не вдалося додати запис.");
+        }
+      })
+      .catch((error) => console.error("Error adding emergency damage:", error));
+  });
 
 // Додавання нового підприємства
 document
@@ -954,7 +997,7 @@ document
       .then((data) => {
         if (data.success) {
           alert("Підприємство додано!");
-          clearFormInputs("enterprise-form"); // Очищуємо поля
+          clearFormInputs("enterprise-form"); 
           loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
         } else {
           alert("Не вдалося додати підприємство.");
@@ -1014,3 +1057,36 @@ function deleteRowById(id) {
     })
     .catch((error) => console.error("Error in deleteRowById:", error));
 }
+
+function deletePollutant(id) {
+  fetch(`http://localhost:5000/deletePollutant/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Речовину видалено!");
+        loadPollutantTable(); // Перезавантажуємо таблицю речовин
+      } else {
+        alert("Не вдалося видалити речовину.");
+      }
+    })
+    .catch((error) => console.error("Error deleting pollutant:", error));
+}
+
+function deleteEnterprise(id) {
+  fetch(`http://localhost:5000/deleteEnterprise/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Підприємство видалено!");
+        loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
+      } else {
+        alert("Не вдалося видалити підприємство.");
+      }
+    })
+    .catch((error) => console.error("Error deleting enterprise:", error));
+}
+

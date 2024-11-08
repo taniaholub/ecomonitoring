@@ -20,7 +20,7 @@
     <button id="reset-btn">Скинути</button>
 
     <br /><br /><br />
-    <input type="text" id="search-input" placeholder="Введіть назву підприємства або речовини" />
+    <input type="text" id="search-input" placeholder="Введіть назву підприємства, речовини або рік" />
     <button id="search-btn">Пошук</button>
 
     <br /><br /><br />
@@ -185,6 +185,55 @@
     <section hidden id="update-row-input">
       <button id="update-row-btn">Оновити</button>
     </section>
+
+
+
+    <br /><br /><br />
+
+    <table id="emergencyDamageTable">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Підприєство</th>
+          <th>Забруднююча речовина</th>
+          <th>Рік</th>
+          <th>Тип завданої шкоди</th>
+          <th>Сума збитків</th>
+          <th>Видалити</th>
+          <th>Редагувати</th>
+        </tr>
+      </thead>
+      <tbody>
+    
+      </tbody>
+    </table>
+
+    <!-- Форма для додавання нового типу шкоди -->
+    <h3>Додати нове поле</h3>
+    <form id="emergency-damage-form">
+      <label for="enterprise-name-input">Назва об'єкта:</label>
+      <select class="form-input" id="enterprise-name-input">
+        <option value="">Виберіть підприємство</option>
+      </select>
+  
+      <label for="pollutant-input">Назва забруднюючої речовини:</label>
+      <select class="form-input" id="pollutant-input">
+        <option value="">Виберіть речовину</option>
+      </select>
+  
+      <label for="damage-year-input">Рік:</label>
+      <input class="form-input" type="text" id="damage-year-input" placeholder="Рік" />
+
+      <label for="emergency-damage-type-input">Оберіть тип завданої шкоди:</label>
+      <select class="form-input" id="emergency-damage-type-input">
+        <option value="" disabled selected hidden>Оберіть тип...</option>
+        <option value="Шкода для атмосферного повітря">Розмір шкоди за викиди в атмосферне повітря</option>
+        <option value="Шкода для водних ресурсів">Розмір шкоди за викиди у водні ресурси</option>
+        <option value="Шкода для земельних ресурсів">Розмір шкоди за викиди в земельні ресурси</option>
+      </select>
+      <input type="number" id="damage-amount" placeholder="Сума збитків"/>
+      <button type="submit">Додати поле</button>
+    </form>
 
 
 
