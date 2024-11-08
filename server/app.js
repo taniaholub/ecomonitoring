@@ -89,8 +89,6 @@ app.post("/addEmergencyDamage", (req, res) => {
     });
 });
 
-
-
 // Отримання всіх даних
 app.get("/getAll", (req, res) => {
   const db = DbService.getDbServiceInstance();
@@ -223,6 +221,24 @@ app.delete("/delete/:id", (request, response) => {
       response
         .status(500)
         .json({ success: false, message: "Error deleting row" });
+    });
+});
+
+app.delete("/deleteEmergencyDamage/:id", (req, res) => {
+  const { id } = req.params;
+  const db = DbService.getDbServiceInstance();
+
+  db.deleteEmergencyDamageById(id)
+    .then((result) => {
+      if (result) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ success: false, message: "EmergencyDamage not found" });
+      }
+    })
+    .catch((err) => {
+      console.error("Error in /deleteEmergencyDamage route:", err);
+      res.status(500).json({ success: false, message: "Error deleting EmergencyDamage" });
     });
 });
 

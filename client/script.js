@@ -882,7 +882,7 @@ function loadEmergencyDamageTable() {
         tableHtml += `<td>${Year}</td>`;
         tableHtml += `<td>${TypeOfDamage}</td>`;
         tableHtml += `<td>${DamageAmount}</td>`;
-        tableHtml += `<td><button class="delete-row-btn" data-id=${idDamage}>Delete</button></td>`;
+        tableHtml += `<td><button class="delete-btn" onclick="deleteEmergencyDamage(${idDamage})">Видалити</button></td>`;
         tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
         tableHtml += "</tr>";
       });
@@ -1056,6 +1056,22 @@ function deleteRowById(id) {
       }
     })
     .catch((error) => console.error("Error in deleteRowById:", error));
+}
+
+function deleteEmergencyDamage(id) {
+  fetch(`http://localhost:5000/deleteEmergencyDamage/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Поле видалено!");
+        loadEmergencyDamageTable(); // Перезавантажуємо таблицю підприємств
+      } else {
+        alert("Не вдалося видалити поле.");
+      }
+    })
+    .catch((error) => console.error("Error deleting row:", error));
 }
 
 function deletePollutant(id) {

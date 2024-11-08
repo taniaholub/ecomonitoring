@@ -307,6 +307,18 @@ class DbService {
     }
   }
   
+  async deleteEmergencyDamageById(id) {
+    const query = "DELETE FROM EmergencyDamage WHERE idDamage = ?";
+    return new Promise((resolve, reject) => {
+      connection.query(query, [id], (err, result) => {
+        if (err) {
+          console.error("Error in deleteEmergencyDamageById:", err);
+          reject(err);
+        }
+        resolve(result.affectedRows > 0);
+      });
+    });
+  }
 
   async deleteEnterpriseById(id) {
     const query = "DELETE FROM Enterprise WHERE idEnterprise = ?";
