@@ -515,6 +515,45 @@ document.querySelector("#damage-type-input").addEventListener("change", function
 });
 
 
+  // Показувати/ховати додаткові поля в залежності від вибору типу шкоди
+  document.querySelector("#emergency-damage-type-input").addEventListener("change", function () {
+    const damageType = this.value;
+  
+    const emergDamageFieldMappings = {
+      "Розмір шкоди для атмосферного повітря": {
+        show: ["emergency-air-damage-fields"],
+        hide: [
+          "emergency-water-damage-fields",
+          "emergency-soil-damage-fields",
+        ],
+      },
+      "Розмір шкоди для водних ресурсів": {
+        show: ["emergency-water-damage-fields"],
+        hide: [
+          "emergency-air-damage-fields",
+          "emergency-soil-damage-fields",
+        ],
+      },
+      "Розмір шкоди для земельних ресурсів": {
+        show: ["emergency-soil-damage-fields"],
+        hide: [
+          "emergency-air-damage-fields",
+          "emergency-water-damage-fields",
+        ],
+      },
+    };
+  
+    const fields = emergDamageFieldMappings[damageType] || {
+      show: [],
+      hide: ["emergency-air-damage-fields", "emergency-water-damage-fields", "emergency-soil-damage-fields"],
+    };
+  
+    // Показати вибрані поля
+    fields.show.forEach((id) => (document.getElementById(id).style.display = "block"));
+  
+    // Сховати решту полів
+    fields.hide.forEach((id) => (document.getElementById(id).style.display = "none"));
+  });
 
 // Tax calculation functions
 function calculateTax(emissionType, emissionVolume, taxRate, additionalParams = {}) {
@@ -963,16 +1002,52 @@ function calculateMi(specificEmissions, burntPollutantMass) {
   return specificEmissions * burntPollutantMass;
 }
 
-// Функція обчислення суми збитків при надзвичайній ситуації
-function calculateEmergDamageAmount(Mi, tax, hazardCoefficient, impactCoeff, eventScaleCoeff) { 
+// Функція обчислення суми збитків за забруднення повітря при надзвичайній ситуації
+function airDamageAmount(Mi, tax, hazardCoefficient, impactCoeff, eventScaleCoeff) { 
    // Рш = Мі * Сп * Кнеб * Кв * Кмп * Кпп
-   // tax  = Сп в таблиці pollutant, грн/т
-   // hazardCoefficient = Кнеб, в таблиці pollutant
-   // impactCoeff = Кв - коефіцієнт впливу, вводить користувач з 4 варіантів , год
-   // eventScaleCoeff = Кмп - коефіцієнт масштабу подій, вводить користувач з 5 варіантів , тон або Га
-  const Kpp = 10; // Коефіцієнт, що залежить від характеру подій
+   // tax  = Сп, грн/т
+   // hazardCoefficient = Кнеб
+   // impactCoeff = Кв - коефіцієнт впливу, год
+   // eventScaleCoeff = Кмп - коефіцієнт масштабу подій, тон або Га
+  const Kpp = 10; // коефіцієнт, що залежить від характеру подій
   return Mi * tax * hazardCoefficient * impactCoeff * eventScaleCoeff * Kpp;
 }
+
+
+// Функція обчислення вартості рекультивації (Вр)
+function calculateVr(S, pollutedZoneRatio, complexityCoeff) { 
+  // Вр = К(с) * К(к) * К(з)
+  const ranges = [5, 10, 20, 50, 100]; // Граничні значення для діапазонів
+  const values = [25000, 30000, 35000, 40000, 45000, 50000]; // Відповідні значення P1
+  
+  let P1 = values[values.length - 1]; // П1 - базова вартість, залежить від S
+  
+  for (let i = 0; i < ranges.length; i++) {
+    if (S <= ranges[i]) {
+      P1 = values[i];
+      break;
+    }
+  }
+  
+  let P2 = 4000; // П2 - вартість за площею
+  let soilWorkCoefficient = (P1 + P2) * S; // К(з) - коефіцієнт робіт із землею
+  return complexityCoeff * pollutedZoneRatio * soilWorkCoefficient;
+}
+
+
+// Функція обчислення розміру шкоди від забруднення ґрунтів, грн
+function soilPollutionDamage(normativeLandValue, S, Kn, Vr) { 
+  // Рш = A * ГОЗ * ПД * КН * Ко + Вр
+  let A = 1.5; // питомі витрати на ліквідацію наслідків
+  let Ko = 4 // Ко - коефіцієнт для врахування природоохороної цінності земельної ділянки
+ return A * normativeLandValue * S * Kn * Ko * Vr;
+}
+
+// Функція для обчислення збитків для водних ресурсів
+function waterDamageAmount(tax, hazardCoefficient, waterDamageFactor) {
+  return tax * hazardCoefficient * waterDamageFactor;
+}
+
 
 document.querySelector("#pollutant-input").addEventListener("change", function () {
   const pollutantName = document.querySelector("#pollutant-input").value;
@@ -993,11 +1068,13 @@ document.querySelector("#pollutant-input").addEventListener("change", function (
     const tax = parseFloat(data.Tax) || 0;
     const hazardCoefficient = parseFloat(data.HazardCoefficient) || 0;
     const specificEmissions = parseFloat(data.SpecificEmissions) || 0;
+    const Kn = parseFloat(data.Kn) || 0;
 
     pollutantData = {
       tax: tax,
       hazardCoefficient: hazardCoefficient,
-      specificEmissions: specificEmissions
+      specificEmissions: specificEmissions,
+      Kn: Kn
     };
   })
   .catch(error => console.error("Помилка завантаження даних речовини:", error));
@@ -1007,34 +1084,45 @@ document.querySelector("#pollutant-input").addEventListener("change", function (
 document.querySelector("#emergency-damage-form").addEventListener("submit", function (event) {
   event.preventDefault();
 
-  // Перевірка, чи завантажені дані речовини для обчислень
   if (!pollutantData) {
     alert("Будь ласка, виберіть речовину для розрахунків.");
     return;
   }
 
-  // Зчитуємо значення, введені користувачем
-  const burntPollutantMass = parseFloat(document.querySelector("#burnt-pollutant-mass-input").value) || 0;
-  const impactCoeff = document.querySelector("#impact-coeff-input").value;
-  const eventScaleCoeff = document.querySelector("#event-scale-coeff-input").value;
+  const damageType = document.querySelector("#emergency-damage-type-input").value;
+  let damageAmount = 0;
 
-  // Обчислення Мі
-  const Mi = calculateMi(pollutantData.specificEmissions, burntPollutantMass);
+  if (damageType === "Розмір шкоди для атмосферного повітря") {
+    const burntPollutantMass = parseFloat(document.querySelector("#burnt-pollutant-mass-input").value) || 0;
+    const impactCoeff = parseFloat(document.querySelector("#impact-coeff-input").value);
+    const eventScaleCoeff = parseFloat(document.querySelector("#event-scale-coeff-input").value);
+    
+    const Mi = calculateMi(pollutantData.specificEmissions, burntPollutantMass);
+    damageAmount = airDamageAmount(Mi, pollutantData.tax, pollutantData.hazardCoefficient, impactCoeff, eventScaleCoeff);
 
-  // Обчислення суми збитків
-  const damageAmount = calculateEmergDamageAmount(
-    Mi,
-    pollutantData.tax,
-    pollutantData.hazardCoefficient,
-    impactCoeff,
-    eventScaleCoeff
-  );
+  } else if (damageType === "Розмір шкоди для водних ресурсів") {
+    // Обчислення для водних ресурсів
+    const waterDamageFactor = 2.5; // Приміром, коефіцієнт для водних ресурсів
+    damageAmount = waterDamageAmount(pollutantData.tax, pollutantData.hazardCoefficient, waterDamageFactor);
+
+  } else if (damageType === "Розмір шкоди для земельних ресурсів") {
+    const normativeLandValue = parseFloat(document.querySelector("#normative-land-value-input").value) || 0;
+    const S = parseFloat(document.querySelector("#S-input").value) || 0;
+    const pollutedZoneRatio = parseFloat(document.querySelector("#polluted-zone-ratio-input").value) || 0;
+    const complexityCoeff = parseFloat(document.querySelector("#complexity-coeff-input").value) || 0;
+
+    const Vr = calculateVr(S, pollutedZoneRatio, complexityCoeff);
+    damageAmount = soilPollutionDamage(normativeLandValue, S, pollutantData.Kn, Vr);
+
+    alert(`Вартість рекультивації (Vr): ${Vr}\n`);
+}
+
 
   const newDamage = {
     objectName: document.querySelector("#enterprise-name-input").value,
     pollutantName: document.querySelector("#pollutant-input").value,
     damageYear: document.querySelector("#damage-year-input").value,
-    damageType: document.querySelector("#emergency-damage-type-input").value,
+    damageType: damageType,
     damageAmount: damageAmount.toFixed(2),
   };
 
@@ -1057,6 +1145,7 @@ document.querySelector("#emergency-damage-form").addEventListener("submit", func
     })
     .catch((error) => console.error("Помилка при додаванні аварійного збитку:", error));
 });
+
 
 
 // Додавання нового підприємства
