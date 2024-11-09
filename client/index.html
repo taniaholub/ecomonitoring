@@ -258,6 +258,23 @@
       <!-- Додаткові поля "Розмір шкоди для водних ресурсів" -->
       <div id="emergency-water-damage-fields" style="display: none;">
       
+        <label for="emergency-Q-input">Фактичні витрати зворотних вод, м^3/год:</label>
+        <input class="form-input" type="number" id="emergency-Q-input" placeholder="Фактичні витрати зворотних вод, м^3/год:" />
+      
+        <label for="emergency-Y-input">Проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році,
+          грн/т:</label>
+        <input class="form-input" type="number" id="emergency-Y-input"
+          placeholder="Проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році, грн/т:" />
+      
+      
+        <label for="emergency-emission-time-input">Час роботи джерела викиду забруд. речовини в режимі надмірного викиду, год:</label>
+        <input class="form-input" type="number" id="emergency-emission-time-input"
+          placeholder="Час роботи джерела викиду забруд. речовини в режимі надмірного викиду, год:" />
+      
+      
+          <label for="emergency-compound-concentr-input">Концентрація сполуки, мг/м^3:</label>
+          <input class="form-input" type="number" id="emergency-compound-concentr-input" step="any" placeholder="Концентрація сполуки, мг/м^3" />
+          
       </div>
 
             <!-- Додаткові поля "Розмір шкоди для земельних ресурсів" -->
@@ -291,7 +308,7 @@
 
 
     <br /><br /><br />
-    
+
     <h2>Таблиця Забруднюючих Речовин</h2>
     <table id="pollutantTable">
       <thead>

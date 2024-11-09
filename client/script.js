@@ -56,7 +56,6 @@ function loadPollutantOptions() {
     });
 }
 
-
 document
   .querySelector("table tbody")
   .addEventListener("click", function (event) {
@@ -151,26 +150,49 @@ updateBtn.onclick = function () {
 
   // Get tax calculation inputs
   const emissionType = document.querySelector("#tax-type-input").value;
-  const emissionVolume = parseFloat(document.querySelector("#emission-volume-input").value);
+  const emissionVolume = parseFloat(
+    document.querySelector("#emission-volume-input").value
+  );
   const taxRate = parseFloat(document.querySelector("#tax-rate-input").value);
 
   // Additional parameters for tax calculation
   const additionalParams = {
-    correctionCoeff: parseFloat(document.querySelector("#correc-coeff-input")?.value || 0),
-    wasteDisposalCoeff: parseFloat(document.querySelector("#waste-disposal-coeff")?.value || 0),
+    correctionCoeff: parseFloat(
+      document.querySelector("#correc-coeff-input")?.value || 0
+    ),
+    wasteDisposalCoeff: parseFloat(
+      document.querySelector("#waste-disposal-coeff")?.value || 0
+    ),
     On: parseFloat(document.querySelector("#energy-input")?.value || 0),
-    wasteCoeff: parseFloat(document.querySelector("#waste-coeff-input")?.value || 0),
-    storageCost: parseFloat(document.querySelector("#storage-cost-input")?.value || 0),
-    storageCostBef2009: parseFloat(document.querySelector("#storage-cost-before-2009")?.value || 0),
-    accumulatedWasteVolume: parseFloat(document.querySelector("#accumulated-waste-volume")?.value || 0),
-    radioactWasteStorCoeff: parseFloat(document.querySelector("#radioact-waste-stor-coeff")?.value || 0)
+    wasteCoeff: parseFloat(
+      document.querySelector("#waste-coeff-input")?.value || 0
+    ),
+    storageCost: parseFloat(
+      document.querySelector("#storage-cost-input")?.value || 0
+    ),
+    storageCostBef2009: parseFloat(
+      document.querySelector("#storage-cost-before-2009")?.value || 0
+    ),
+    accumulatedWasteVolume: parseFloat(
+      document.querySelector("#accumulated-waste-volume")?.value || 0
+    ),
+    radioactWasteStorCoeff: parseFloat(
+      document.querySelector("#radioact-waste-stor-coeff")?.value || 0
+    ),
   };
 
   // Calculate tax
-  const taxSum = calculateTax(emissionType, emissionVolume, taxRate, additionalParams);
+  const taxSum = calculateTax(
+    emissionType,
+    emissionVolume,
+    taxRate,
+    additionalParams
+  );
 
   // Get health risk inputs
-  const concentration = parseFloat(document.querySelector("#compound-concentr-input").value);
+  const concentration = parseFloat(
+    document.querySelector("#compound-concentr-input").value
+  );
   const pollutantName = document.querySelector("#pollutant-name-input").value;
 
   if (!concentration || !pollutantName) {
@@ -182,13 +204,13 @@ updateBtn.onclick = function () {
 
   // Fetch pollutant data and calculate risks
   fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       if (!data || typeof data !== "object") {
         throw new Error("Невірний формат даних від сервера");
       }
@@ -198,7 +220,9 @@ updateBtn.onclick = function () {
       const mpc = parseFloat(data.MPC) || 0;
 
       if (RFC === 0 && SF === 0) {
-        alert("Увага: Для цієї речовини відсутні значення SF та RFC. Ризики будуть розраховані як 0.");
+        alert(
+          "Увага: Для цієї речовини відсутні значення SF та RFC. Ризики будуть розраховані як 0."
+        );
       }
 
       // Calculate health risks
@@ -209,10 +233,12 @@ updateBtn.onclick = function () {
         concentration,
         mpc,
         qmi: parseFloat(document.querySelector("#mass-flow-input").value),
-        qnorm: parseFloat(document.querySelector("#emmission-standard-input").value),
+        qnorm: parseFloat(
+          document.querySelector("#emmission-standard-input").value
+        ),
         t: parseFloat(document.querySelector("#emission-time-input").value),
         Q: parseFloat(document.querySelector("#Q-input").value),
-        Y: parseFloat(document.querySelector("#Y-input").value)
+        Y: parseFloat(document.querySelector("#Y-input").value),
       };
 
       const damageType = document.querySelector("#damage-type-input").value;
@@ -231,7 +257,7 @@ updateBtn.onclick = function () {
         taxType: emissionType,
         taxRate,
         taxSum: taxSum.toFixed(2),
-        damages: damages.toFixed(4)
+        damages: damages.toFixed(4),
       };
 
       // Send update request to server
@@ -245,18 +271,18 @@ updateBtn.onclick = function () {
           info: updatedInfo,
         }),
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          updateRowInTable(id, updatedInfo);
-          clearFormInputs("enterprise-form");
-          document.querySelector("#update-row-input").hidden = true;
-        } else {
-          alert("Failed to update: " + data.message);
-        }
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            updateRowInTable(id, updatedInfo);
+            clearFormInputs("enterprise-form");
+            document.querySelector("#update-row-input").hidden = true;
+          } else {
+            alert("Failed to update: " + data.message);
+          }
+        });
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Error:", error);
       alert("An error occurred while updating the row. Please try again.");
     });
@@ -384,8 +410,7 @@ function validateInputs() {
     {
       input: "#Q-input",
       validate: (value) => parseFloat(value) >= 0,
-      message:
-        "Фактичні витрати зворотних вод не можуть бути від'ємними.",
+      message: "Фактичні витрати зворотних вод не можуть бути від'ємними.",
     },
     {
       input: "#Y-input",
@@ -393,7 +418,6 @@ function validateInputs() {
       message:
         "Проіндексований питомий економ. збиток повиннен бути більше нуля.",
     },
-  
   ];
 
   // Перевірка полів
@@ -423,11 +447,11 @@ document
           "water-waste-fields",
           "waste-disposal-fields",
           "radioactive-fields",
-          "radioact-waste-stor-fields"
+          "radioact-waste-stor-fields",
         ],
-        show: ["tax-rate-input"]
+        show: ["tax-rate-input"],
       },
-      
+
       "Викиди у водні об'єкти": {
         show: ["water-waste-fields"],
         hide: [
@@ -487,76 +511,87 @@ document
     taxRateInput.style.display = fields.hideTax ? "none" : "block";
   });
 
-  // Показувати/ховати додаткові поля в залежності від вибору типу відшкодування збитків 
-document.querySelector("#damage-type-input").addEventListener("change", function () {
-  const damageType = this.value;
-
-  const damageFieldMappings = {
-    "Відшкодування збитків за викиди в атмосферне повітря": {
-      show: ["air-damage-fields"],
-      hide: ["water-damage-fields"],
-    },
-    "Відшкодування збитків за викиди у водні об'єкти": {
-      show: ["water-damage-fields"],
-      hide: ["air-damage-fields"],
-    },
-  };
-
-  const fields = damageFieldMappings[damageType] || {
-    show: [],
-    hide: ["air-damage-fields", "water-damage-fields"],
-  };
-
-  // Показати вибрані поля
-  fields.show.forEach((id) => (document.getElementById(id).style.display = "block"));
-
-  // Сховати решту полів
-  fields.hide.forEach((id) => (document.getElementById(id).style.display = "none"));
-});
-
-
-  // Показувати/ховати додаткові поля в залежності від вибору типу шкоди
-  document.querySelector("#emergency-damage-type-input").addEventListener("change", function () {
+// Показувати/ховати додаткові поля в залежності від вибору типу відшкодування збитків
+document
+  .querySelector("#damage-type-input")
+  .addEventListener("change", function () {
     const damageType = this.value;
-  
+
+    const damageFieldMappings = {
+      "Відшкодування збитків за викиди в атмосферне повітря": {
+        show: ["air-damage-fields"],
+        hide: ["water-damage-fields"],
+      },
+      "Відшкодування збитків за викиди у водні об'єкти": {
+        show: ["water-damage-fields"],
+        hide: ["air-damage-fields"],
+      },
+    };
+
+    const fields = damageFieldMappings[damageType] || {
+      show: [],
+      hide: ["air-damage-fields", "water-damage-fields"],
+    };
+
+    // Показати вибрані поля
+    fields.show.forEach(
+      (id) => (document.getElementById(id).style.display = "block")
+    );
+
+    // Сховати решту полів
+    fields.hide.forEach(
+      (id) => (document.getElementById(id).style.display = "none")
+    );
+  });
+
+// Показувати/ховати додаткові поля в залежності від вибору типу шкоди
+document
+  .querySelector("#emergency-damage-type-input")
+  .addEventListener("change", function () {
+    const damageType = this.value;
+
     const emergDamageFieldMappings = {
       "Розмір шкоди для атмосферного повітря": {
         show: ["emergency-air-damage-fields"],
-        hide: [
-          "emergency-water-damage-fields",
-          "emergency-soil-damage-fields",
-        ],
+        hide: ["emergency-water-damage-fields", "emergency-soil-damage-fields"],
       },
       "Розмір шкоди для водних ресурсів": {
         show: ["emergency-water-damage-fields"],
-        hide: [
-          "emergency-air-damage-fields",
-          "emergency-soil-damage-fields",
-        ],
+        hide: ["emergency-air-damage-fields", "emergency-soil-damage-fields"],
       },
       "Розмір шкоди для земельних ресурсів": {
         show: ["emergency-soil-damage-fields"],
-        hide: [
-          "emergency-air-damage-fields",
-          "emergency-water-damage-fields",
-        ],
+        hide: ["emergency-air-damage-fields", "emergency-water-damage-fields"],
       },
     };
-  
+
     const fields = emergDamageFieldMappings[damageType] || {
       show: [],
-      hide: ["emergency-air-damage-fields", "emergency-water-damage-fields", "emergency-soil-damage-fields"],
+      hide: [
+        "emergency-air-damage-fields",
+        "emergency-water-damage-fields",
+        "emergency-soil-damage-fields",
+      ],
     };
-  
+
     // Показати вибрані поля
-    fields.show.forEach((id) => (document.getElementById(id).style.display = "block"));
-  
+    fields.show.forEach(
+      (id) => (document.getElementById(id).style.display = "block")
+    );
+
     // Сховати решту полів
-    fields.hide.forEach((id) => (document.getElementById(id).style.display = "none"));
+    fields.hide.forEach(
+      (id) => (document.getElementById(id).style.display = "none")
+    );
   });
 
 // Tax calculation functions
-function calculateTax(emissionType, emissionVolume, taxRate, additionalParams = {}) {
+function calculateTax(
+  emissionType,
+  emissionVolume,
+  taxRate,
+  additionalParams = {}
+) {
   let taxSum = 0;
 
   switch (emissionType) {
@@ -576,15 +611,21 @@ function calculateTax(emissionType, emissionVolume, taxRate, additionalParams = 
       const H = 0.0133;
       taxSum =
         additionalParams.On * H +
-        additionalParams.wasteCoeff * additionalParams.storageCost * emissionVolume +
-        (1 / 32) * (additionalParams.wasteCoeff * additionalParams.storageCostBef2009 * additionalParams.accumulatedWasteVolume);
+        additionalParams.wasteCoeff *
+          additionalParams.storageCost *
+          emissionVolume +
+        (1 / 32) *
+          (additionalParams.wasteCoeff *
+            additionalParams.storageCostBef2009 *
+            additionalParams.accumulatedWasteVolume);
       break;
 
     case "Зберігання радіоактивних відходів":
-      taxSum = emissionVolume * taxRate * additionalParams.radioactWasteStorCoeff;
+      taxSum =
+        emissionVolume * taxRate * additionalParams.radioactWasteStorCoeff;
       break;
   }
-  
+
   return taxSum;
 }
 
@@ -604,7 +645,8 @@ function calculateHealthRisk(concentration, SF, RFC) {
 }
 
 // Damage calculation helper functions
-function calculateAi(mpc) { // безрозмірний показник відносної небезпечності i-тої забруднюючої речовини
+function calculateAi(mpc) {
+  // безрозмірний показник відносної небезпечності i-тої забруднюючої речовини
   if (mpc > 1) {
     return 10 / mpc;
   } else if (mpc <= 0) {
@@ -620,47 +662,74 @@ function GetMi(qmi, qnorm, t) {
 
 function GetMiWater(concentration, mpc, t, Q) {
   // MiW = (Cif - Cid) * Q * t * Math.pow(10, -6) // в тоннах
-        //Сіф = concentration - середня фактична концентрація, г/м^3
-        //Сід = mpc - дозволена для скиду концентрація(гдк), 
-        // Q - фактичні витрати зворотних вод, м^3/год. Ввід користувача
-        // t - тривалість скидання забруднюючих речовин з порушенням норм ГДК, год
-  return (concentration - mpc) * Q * t * Math.pow(10, -6);
+  //Сіф = concentration - середня фактична концентрація, г/м^3
+  //Сід = mpc - дозволена для скиду концентрація(гдк),
+  // Q - фактичні витрати зворотних вод, м^3/год
+  // t - тривалість скидання забруднюючих речовин з порушенням норм ГДК, год
+
+  // Перевірка: якщо concentration < mpc, то їх різниця = 1
+  const difference = concentration < mpc ? 1 : concentration - mpc;
+
+  return difference * Q * t * Math.pow(10, -6);
 }
 
+// Функція для обчислення збитків за викиди в атмосферу
+function calculateAirDamage(params) {
+  const minWage = 1.1 * 6700;
+  const Ai = calculateAi(params.mpc);
+  const Knas = 1.8;
+  const Kf = 1.65;
+  const Kt = Knas * Kf;
+  const Kzi =
+    params.concentration > 0 && params.mpc > 0 && params.mpc != 0
+      ? params.concentration / params.mpc
+      : 1;
+  const Mi = GetMi(params.qmi, params.qnorm, params.t);
+
+  const damages = Mi * minWage * Ai * Kt * Kzi;
+
+  alert(
+    `Mi: ${Mi.toFixed(4)}, Knas: ${Knas.toFixed(2)}, Kf: ${Kf.toFixed(
+      2
+    )}, Kt: ${Kt.toFixed(2)},
+     Kzi: ${Kzi.toFixed(3)}, Ai: ${Ai.toFixed(3)}, minWage: ${minWage.toFixed(
+      2
+    )}`
+  );
+
+  return damages;
+}
+
+// Функція для обчислення збитків за викиди в водні об'єкти
+function calculateWaterDamage(params) {
+  const Kat = 1.5;
+  const Kr = 1.21;
+  const Kz = 1.5;
+  const Ai = calculateAi(params.mpc);
+  const MiW = GetMiWater(params.concentration, params.mpc, params.t, params.Q);
+  const Yi = params.Y * Ai;
+
+  const damages = Kat * Kr * Kz * MiW * Yi;
+
+  alert(
+    `З = Кат * Кр * Кз * Мі * Yi, 
+     MiW: ${MiW.toFixed(4)}, Kat: ${Kat.toFixed(2)}, Kr: ${Kr.toFixed(
+      2
+    )}, Kz: ${Kz.toFixed(2)},
+     Yi: ${Yi.toFixed(3)}, Ai: ${Ai.toFixed(3)}`
+  );
+
+  return damages;
+}
+
+// Основна функція для обчислення збитків
 function calculateDamages(damageType, params) {
   let damages = 0;
-// mpc - це гдк
+
   if (damageType === "Відшкодування збитків за викиди в атмосферне повітря") {
-    const minWage = 1.1 * 6700;
-    const Ai = calculateAi(params.mpc);
-    const Knas = 1.8; // коефіцієнт залежить від чисельності населення, стала
-    const Kf = 1.65;  // коефіцієнт враховує народогосподарське населення, стала
-    const Kt = Knas * Kf; // коефіцієнт, що враховує територіальні соціально-економічні особливості
-    const Kzi = params.concentration > 0 && params.mpc > 0 && params.mpc != 0 ?  // коефіцієнт, що залежить від рівня забрутнення атмосферного повітря
-      params.concentration / params.mpc : 1;
-    const Mi = GetMi(params.qmi, params.qnorm, params.t);
-    
-    damages = Mi * minWage * Ai * Kt * Kzi;
-    
-    alert(
-      `Mi: ${Mi.toFixed(4)}, Knas: ${Knas.toFixed(2)}, Kf: ${Kf.toFixed(2)}, Kt: ${Kt.toFixed(2)},
-       Kzi: ${Kzi.toFixed(3)}, Ai: ${Ai.toFixed(3)}, minWage: ${minWage.toFixed(2)}`
-    );
+    damages = calculateAirDamage(params);
   } else if (damageType === "Відшкодування збитків за викиди у водні об'єкти") {
-    const Kat = 1.5; // коефіцієнт, що враховує категорію водного об'єкта, стала
-    const Kr = 1.21; // регіональний коефіцієнт дефіцитності водних ресурсів поверхневих вод, стала
-    const Kz = 1.5; // коефіцієнт ураженості водної екосистеми, стала
-    const Ai = calculateAi(params.mpc);
-    const MiW = GetMiWater(params.concentration, params.mpc, params.t, params.Q); // маса наднормативного скиду забруд. реч. у водний об'єкт
-    const Yi = params.Y * Ai;
-    
-    damages = Kat * Kr * Kz * MiW * Yi;
-    
-    alert(
-      `З = Кат * Кр * Кз * Мі * Yi, 
-       MiW: ${MiW.toFixed(4)}, Kat: ${Kat.toFixed(2)}, Kr: ${Kr.toFixed(2)}, Kz: ${Kz.toFixed(2)},
-       Yi: ${Yi.toFixed(3)}, Ai: ${Ai.toFixed(3)}`
-    );
+    damages = calculateWaterDamage(params);
   }
 
   return damages;
@@ -675,27 +744,50 @@ addBtn.onclick = function () {
 
   // Get tax calculation inputs
   const emissionType = document.querySelector("#tax-type-input").value;
-  const emissionVolume = parseFloat(document.querySelector("#emission-volume-input").value);
+  const emissionVolume = parseFloat(
+    document.querySelector("#emission-volume-input").value
+  );
   const taxRate = parseFloat(document.querySelector("#tax-rate-input").value);
 
   // Additional parameters for specific tax types
   const additionalParams = {
-    correctionCoeff: parseFloat(document.querySelector("#correc-coeff-input")?.value || 0),
-    wasteDisposalCoeff: parseFloat(document.querySelector("#waste-disposal-coeff")?.value || 0),
+    correctionCoeff: parseFloat(
+      document.querySelector("#correc-coeff-input")?.value || 0
+    ),
+    wasteDisposalCoeff: parseFloat(
+      document.querySelector("#waste-disposal-coeff")?.value || 0
+    ),
     On: parseFloat(document.querySelector("#energy-input")?.value || 0),
-    wasteCoeff: parseFloat(document.querySelector("#waste-coeff-input")?.value || 0),
-    storageCost: parseFloat(document.querySelector("#storage-cost-input")?.value || 0),
-    storageCostBef2009: parseFloat(document.querySelector("#storage-cost-before-2009")?.value || 0),
-    accumulatedWasteVolume: parseFloat(document.querySelector("#accumulated-waste-volume")?.value || 0),
-    radioactWasteStorCoeff: parseFloat(document.querySelector("#radioact-waste-stor-coeff")?.value || 0)
+    wasteCoeff: parseFloat(
+      document.querySelector("#waste-coeff-input")?.value || 0
+    ),
+    storageCost: parseFloat(
+      document.querySelector("#storage-cost-input")?.value || 0
+    ),
+    storageCostBef2009: parseFloat(
+      document.querySelector("#storage-cost-before-2009")?.value || 0
+    ),
+    accumulatedWasteVolume: parseFloat(
+      document.querySelector("#accumulated-waste-volume")?.value || 0
+    ),
+    radioactWasteStorCoeff: parseFloat(
+      document.querySelector("#radioact-waste-stor-coeff")?.value || 0
+    ),
   };
 
   // Calculate tax
-  const taxSum = calculateTax(emissionType, emissionVolume, taxRate, additionalParams);
+  const taxSum = calculateTax(
+    emissionType,
+    emissionVolume,
+    taxRate,
+    additionalParams
+  );
   document.querySelector("#tax-sum-input").value = taxSum.toFixed(2);
 
   // Get health risk inputs
-  const concentration = parseFloat(document.querySelector("#compound-concentr-input").value);
+  const concentration = parseFloat(
+    document.querySelector("#compound-concentr-input").value
+  );
   const pollutantName = document.querySelector("#pollutant-name-input").value;
 
   if (!concentration || !pollutantName) {
@@ -705,13 +797,13 @@ addBtn.onclick = function () {
 
   // Fetch pollutant data and calculate risks
   fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       if (!data || typeof data !== "object") {
         throw new Error("Невірний формат даних від сервера");
       }
@@ -721,27 +813,33 @@ addBtn.onclick = function () {
       const mpc = parseFloat(data.MPC) || 0;
 
       if (RFC === 0 && SF === 0) {
-        alert("Увага: Для цієї речовини відсутні значення SF та RFC. Ризики будуть розраховані як 0.");
+        alert(
+          "Увага: Для цієї речовини відсутні значення SF та RFC. Ризики будуть розраховані як 0."
+        );
       }
 
       // Calculate health risks
       const { hq, cr, ladd } = calculateHealthRisk(concentration, SF, RFC);
-      
+
       // Update form fields
       document.querySelector("#hq-input").value = hq.toFixed(4);
       document.querySelector("#cr-input").value = cr.toFixed(5);
-      
-      alert(`Ladd: ${ladd.toFixed(6)}, HQ: ${hq.toFixed(2)}, CR: ${cr.toFixed(2)}`);
+
+      alert(
+        `Ladd: ${ladd.toFixed(6)}, HQ: ${hq.toFixed(2)}, CR: ${cr.toFixed(2)}`
+      );
 
       // Calculate damages
       const damageParams = {
         concentration,
         mpc, //ГДК
         qmi: parseFloat(document.querySelector("#mass-flow-input").value), // середнє арифметичне значення результатів вимірювань масової витрати
-        qnorm: parseFloat(document.querySelector("#emmission-standard-input").value), // затверджений норматив викиду
+        qnorm: parseFloat(
+          document.querySelector("#emmission-standard-input").value
+        ), // затверджений норматив викиду
         t: parseFloat(document.querySelector("#emission-time-input").value), //тривалість скидання забруднюючих речовин з порушенням норм ГДК
         Q: parseFloat(document.querySelector("#Q-input").value),
-        Y: parseFloat(document.querySelector("#Y-input").value)// проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році. 
+        Y: parseFloat(document.querySelector("#Y-input").value), // проіндексований питомий економ. збиток від забруднення вод.ресурсів у поточному році.
       };
 
       const damageType = document.querySelector("#damage-type-input").value;
@@ -761,25 +859,25 @@ addBtn.onclick = function () {
         taxType: emissionType,
         taxRate,
         taxSum: taxSum.toFixed(2),
-        damages: damages.toFixed(2)
+        damages: damages.toFixed(2),
       };
 
       // Send data to server
       return fetch("http://localhost:5000/insert", {
         headers: {
-          "Content-type": "application/json"
+          "Content-type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify({ info })
+        body: JSON.stringify({ info }),
       });
     })
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       if (data && data.data) {
         insertRowIntoTable(data.data);
       } else {
@@ -789,7 +887,7 @@ addBtn.onclick = function () {
     .then(() => {
       clearFormInputs("report-form");
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Помилка при отриманні даних про речовину:", error);
     });
 };
@@ -845,8 +943,8 @@ function insertRowIntoTable(data) {
   tableHtml += `<td>${data.taxRate}</td>`;
   tableHtml += `<td>${data.taxSum}</td>`;
   tableHtml += `<td>${data.damages}</td>`;
-  tableHtml += `<td><button class="delete-row-btn" data-id=${data.id}>Delete</button></td>`; // кнопки видалення та редагування
-  tableHtml += `<td><button class="edit-row-btn" data-id=${data.id}>Edit</button></td>`;
+  tableHtml += `<td><button class="delete-row-btn" data-id=${data.id}>Видалити</button></td>`; // кнопки видалення та редагування
+  tableHtml += `<td><button class="edit-row-btn" data-id=${data.id}>Редагувати</button></td>`;
   tableHtml += "</tr>";
 
   // Оновлення таблиці
@@ -900,14 +998,13 @@ function loadHTMLTable(data) {
     tableHtml += `<td>${TaxRate}</td>`;
     tableHtml += `<td>${TaxSum}</td>`;
     tableHtml += `<td>${Damages}</td>`;
-    tableHtml += `<td><button class="delete-row-btn" data-id=${idReport}>Delete</button></td>`;
-    tableHtml += `<td><button class="edit-row-btn" data-id=${idReport}>Edit</button></td>`;
+    tableHtml += `<td><button class="delete-row-btn" data-id=${idReport}>Видалити</button></td>`;
+    tableHtml += `<td><button class="edit-row-btn" data-id=${idReport}>Редагувати</button></td>`;
     tableHtml += "</tr>";
   });
 
   table.innerHTML = tableHtml;
 }
-
 
 function loadEmergencyDamageTable() {
   fetch("http://localhost:5000/getAllEmergencyDamages")
@@ -917,28 +1014,37 @@ function loadEmergencyDamageTable() {
       const table = document.querySelector("#emergencyDamageTable tbody");
 
       if (data.length === 0) {
-        table.innerHTML = "<tr><td class='no-data' colspan='7'>No Data</td></tr>";
+        table.innerHTML =
+          "<tr><td class='no-data' colspan='7'>No Data</td></tr>";
         return;
       }
 
       let tableHtml = "";
-      data.forEach(({ idDamage, EnterpriseName, PollutantName, Year, TypeOfDamage, DamageAmount }) => {
-        tableHtml += "<tr>";
-        tableHtml += `<td>${idDamage}</td>`;
-        tableHtml += `<td>${EnterpriseName}</td>`;
-        tableHtml += `<td>${PollutantName}</td>`;
-        tableHtml += `<td>${Year}</td>`;
-        tableHtml += `<td>${TypeOfDamage}</td>`;
-        tableHtml += `<td>${DamageAmount}</td>`;
-        tableHtml += `<td><button class="delete-btn" onclick="deleteEmergencyDamage(${idDamage})">Видалити</button></td>`;
-        // tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
-        tableHtml += "</tr>";
-      });
+      data.forEach(
+        ({
+          idDamage,
+          EnterpriseName,
+          PollutantName,
+          Year,
+          TypeOfDamage,
+          DamageAmount,
+        }) => {
+          tableHtml += "<tr>";
+          tableHtml += `<td>${idDamage}</td>`;
+          tableHtml += `<td>${EnterpriseName}</td>`;
+          tableHtml += `<td>${PollutantName}</td>`;
+          tableHtml += `<td>${Year}</td>`;
+          tableHtml += `<td>${TypeOfDamage}</td>`;
+          tableHtml += `<td>${DamageAmount}</td>`;
+          tableHtml += `<td><button class="delete-btn" onclick="deleteEmergencyDamage(${idDamage})">Видалити</button></td>`;
+          // tableHtml += `<td><button class="edit-row-btn" data-id=${idDamage}>Edit</button></td>`;
+          tableHtml += "</tr>";
+        }
+      );
       table.innerHTML = tableHtml;
     })
     .catch((error) => console.error("Error loading emergency damages:", error));
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   loadEmergencyDamageTable();
@@ -992,10 +1098,8 @@ function loadEnterpriseTable() {
     });
 }
 
-
-
 // Функція обчислення питомого показника викиду
-function calculateMi(specificEmissions, burntPollutantMass) { 
+function calculateMi(specificEmissions, burntPollutantMass) {
   // Мі = qi * Мсі
   // specificEmissions = qi - питомий показник викиду забруднюючої речовини, т/т
   // burntPollutantMass = Мсі - маса згорілої речовини, т
@@ -1003,150 +1107,211 @@ function calculateMi(specificEmissions, burntPollutantMass) {
 }
 
 // Функція обчислення суми збитків за забруднення повітря при надзвичайній ситуації
-function airDamageAmount(Mi, tax, hazardCoefficient, impactCoeff, eventScaleCoeff) { 
-   // Рш = Мі * Сп * Кнеб * Кв * Кмп * Кпп
-   // tax  = Сп, грн/т
-   // hazardCoefficient = Кнеб
-   // impactCoeff = Кв - коефіцієнт впливу, год
-   // eventScaleCoeff = Кмп - коефіцієнт масштабу подій, тон або Га
+function airEmergDamageAmount(
+  Mi,
+  tax,
+  hazardCoefficient,
+  impactCoeff,
+  eventScaleCoeff
+) {
+  // Рш = Мі * Сп * Кнеб * Кв * Кмп * Кпп
+  // tax  = Сп, грн/т
+  // hazardCoefficient = Кнеб
+  // impactCoeff = Кв - коефіцієнт впливу, год
+  // eventScaleCoeff = Кмп - коефіцієнт масштабу подій, тон або Га
   const Kpp = 10; // коефіцієнт, що залежить від характеру подій
   return Mi * tax * hazardCoefficient * impactCoeff * eventScaleCoeff * Kpp;
 }
 
-
 // Функція обчислення вартості рекультивації (Вр)
-function calculateVr(S, pollutedZoneRatio, complexityCoeff) { 
+function calculateVr(S, pollutedZoneRatio, complexityCoeff) {
   // Вр = К(с) * К(к) * К(з)
   const ranges = [5, 10, 20, 50, 100]; // Граничні значення для діапазонів
   const values = [25000, 30000, 35000, 40000, 45000, 50000]; // Відповідні значення P1
-  
+
   let P1 = values[values.length - 1]; // П1 - базова вартість, залежить від S
-  
+
   for (let i = 0; i < ranges.length; i++) {
     if (S <= ranges[i]) {
       P1 = values[i];
       break;
     }
   }
-  
+
   let P2 = 4000; // П2 - вартість за площею
   let soilWorkCoefficient = (P1 + P2) * S; // К(з) - коефіцієнт робіт із землею
   return complexityCoeff * pollutedZoneRatio * soilWorkCoefficient;
 }
 
-
 // Функція обчислення розміру шкоди від забруднення ґрунтів, грн
-function soilPollutionDamage(normativeLandValue, S, Kn, Vr) { 
+function soilPollutionDamage(normativeLandValue, S, Kn, Vr) {
   // Рш = A * ГОЗ * ПД * КН * Ко + Вр
   let A = 1.5; // питомі витрати на ліквідацію наслідків
-  let Ko = 4 // Ко - коефіцієнт для врахування природоохороної цінності земельної ділянки
- return A * normativeLandValue * S * Kn * Ko * Vr;
+  let Ko = 4; // Ко - коефіцієнт для врахування природоохороної цінності земельної ділянки
+  return A * normativeLandValue * S * Kn * Ko * Vr;
 }
 
 // Функція для обчислення збитків для водних ресурсів
-function waterDamageAmount(tax, hazardCoefficient, waterDamageFactor) {
-  return tax * hazardCoefficient * waterDamageFactor;
+function waterEmergDamageAmount(waterDamage) {
+  return 10 * waterDamage;
 }
 
+document
+  .querySelector("#pollutant-input")
+  .addEventListener("change", function () {
+    const pollutantName = document.querySelector("#pollutant-input").value;
 
-document.querySelector("#pollutant-input").addEventListener("change", function () {
-  const pollutantName = document.querySelector("#pollutant-input").value;
+    fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!data || typeof data !== "object") {
+          throw new Error("Невірний формат даних від сервера");
+        }
 
-  fetch(`http://localhost:5000/getPollutantFactors?name=${pollutantName}`)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (!data || typeof data !== "object") {
-      throw new Error("Невірний формат даних від сервера");
-    }
+        // Отримання значень з об'єкта 'data' або встановлення 0, якщо значення відсутнє
+        const tax = parseFloat(data.Tax) || 0;
+        const hazardCoefficient = parseFloat(data.HazardCoefficient) || 0;
+        const specificEmissions = parseFloat(data.SpecificEmissions) || 0;
+        const Kn = parseFloat(data.Kn) || 0;
+        const mpc = parseFloat(data.MPC) || 0;
 
-    // Отримання значень з об'єкта 'data' або встановлення 0, якщо значення відсутнє
-    const tax = parseFloat(data.Tax) || 0;
-    const hazardCoefficient = parseFloat(data.HazardCoefficient) || 0;
-    const specificEmissions = parseFloat(data.SpecificEmissions) || 0;
-    const Kn = parseFloat(data.Kn) || 0;
-
-    pollutantData = {
-      tax: tax,
-      hazardCoefficient: hazardCoefficient,
-      specificEmissions: specificEmissions,
-      Kn: Kn
-    };
-  })
-  .catch(error => console.error("Помилка завантаження даних речовини:", error));
-});
+        pollutantData = {
+          tax: tax,
+          hazardCoefficient: hazardCoefficient,
+          specificEmissions: specificEmissions,
+          Kn: Kn,
+          mpc: mpc,
+        };
+      })
+      .catch((error) =>
+        console.error("Помилка завантаження даних речовини:", error)
+      );
+  });
 
 // Обробка форми для додавання нового запису
-document.querySelector("#emergency-damage-form").addEventListener("submit", function (event) {
-  event.preventDefault();
+document
+  .querySelector("#emergency-damage-form")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
 
-  if (!pollutantData) {
-    alert("Будь ласка, виберіть речовину для розрахунків.");
-    return;
-  }
+    if (!pollutantData) {
+      alert("Будь ласка, виберіть речовину для розрахунків.");
+      return;
+    }
 
-  const damageType = document.querySelector("#emergency-damage-type-input").value;
-  let damageAmount = 0;
+    const damageType = document.querySelector(
+      "#emergency-damage-type-input"
+    ).value;
+    let damageAmount = 0;
 
-  if (damageType === "Розмір шкоди для атмосферного повітря") {
-    const burntPollutantMass = parseFloat(document.querySelector("#burnt-pollutant-mass-input").value) || 0;
-    const impactCoeff = parseFloat(document.querySelector("#impact-coeff-input").value);
-    const eventScaleCoeff = parseFloat(document.querySelector("#event-scale-coeff-input").value);
-    
-    const Mi = calculateMi(pollutantData.specificEmissions, burntPollutantMass);
-    damageAmount = airDamageAmount(Mi, pollutantData.tax, pollutantData.hazardCoefficient, impactCoeff, eventScaleCoeff);
+    if (damageType === "Розмір шкоди для атмосферного повітря") {
+      const burntPollutantMass =
+        parseFloat(
+          document.querySelector("#burnt-pollutant-mass-input").value
+        ) || 0;
+      const impactCoeff = parseFloat(
+        document.querySelector("#impact-coeff-input").value
+      );
+      const eventScaleCoeff = parseFloat(
+        document.querySelector("#event-scale-coeff-input").value
+      );
 
-  } else if (damageType === "Розмір шкоди для водних ресурсів") {
-    // Обчислення для водних ресурсів
-    const waterDamageFactor = 2.5; // Приміром, коефіцієнт для водних ресурсів
-    damageAmount = waterDamageAmount(pollutantData.tax, pollutantData.hazardCoefficient, waterDamageFactor);
+      const Mi = calculateMi(
+        pollutantData.specificEmissions,
+        burntPollutantMass
+      );
+      damageAmount = airEmergDamageAmount(
+        Mi,
+        pollutantData.tax,
+        pollutantData.hazardCoefficient,
+        impactCoeff,
+        eventScaleCoeff
+      );
+    } else if (damageType === "Розмір шкоди для водних ресурсів") {
+      // Отримуємо параметри для розрахунку
+      const params = {
+        concentration: parseFloat(
+          document.querySelector("#emergency-compound-concentr-input").value
+        ),
+        mpc: pollutantData.mpc,
+        t: parseFloat(
+          document.querySelector("#emergency-emission-time-input").value
+        ),
+        Q: parseFloat(document.querySelector("#emergency-Q-input").value),
+        Y: parseFloat(document.querySelector("#emergency-Y-input").value),
+      };
 
-  } else if (damageType === "Розмір шкоди для земельних ресурсів") {
-    const normativeLandValue = parseFloat(document.querySelector("#normative-land-value-input").value) || 0;
-    const S = parseFloat(document.querySelector("#S-input").value) || 0;
-    const pollutedZoneRatio = parseFloat(document.querySelector("#polluted-zone-ratio-input").value) || 0;
-    const complexityCoeff = parseFloat(document.querySelector("#complexity-coeff-input").value) || 0;
+      // Використовуємо ту саму функцію calculateWaterDamage, що й для звичайних викидів
+      damageAmount = 10 * calculateWaterDamage(params);
 
-    const Vr = calculateVr(S, pollutedZoneRatio, complexityCoeff);
-    damageAmount = soilPollutionDamage(normativeLandValue, S, pollutantData.Kn, Vr);
+      alert(
+        `Параметри розрахунку:\n
+       Концентрація: ${params.concentration}\n
+       ГДК: ${params.mpc}\n
+       Час: ${params.t}\n
+       Q: ${params.Q}\n
+       Y: ${params.Y}\n
+       Розмір збитків: ${damageAmount.toFixed(2)}`
+      );
+    } else if (damageType === "Розмір шкоди для земельних ресурсів") {
+      const normativeLandValue =
+        parseFloat(
+          document.querySelector("#normative-land-value-input").value
+        ) || 0;
+      const S = parseFloat(document.querySelector("#S-input").value) || 0;
+      const pollutedZoneRatio =
+        parseFloat(
+          document.querySelector("#polluted-zone-ratio-input").value
+        ) || 0;
+      const complexityCoeff =
+        parseFloat(document.querySelector("#complexity-coeff-input").value) ||
+        0;
 
-    alert(`Вартість рекультивації (Vr): ${Vr}\n`);
-}
+      const Vr = calculateVr(S, pollutedZoneRatio, complexityCoeff);
+      damageAmount = soilPollutionDamage(
+        normativeLandValue,
+        S,
+        pollutantData.Kn,
+        Vr
+      );
 
+      alert(`Вартість рекультивації (Vr): ${Vr}\n`);
+    }
 
-  const newDamage = {
-    objectName: document.querySelector("#enterprise-name-input").value,
-    pollutantName: document.querySelector("#pollutant-input").value,
-    damageYear: document.querySelector("#damage-year-input").value,
-    damageType: damageType,
-    damageAmount: damageAmount.toFixed(2),
-  };
+    const newDamage = {
+      objectName: document.querySelector("#enterprise-name-input").value,
+      pollutantName: document.querySelector("#pollutant-input").value,
+      damageYear: document.querySelector("#damage-year-input").value,
+      damageType: damageType,
+      damageAmount: damageAmount.toFixed(2),
+    };
 
-  fetch("http://localhost:5000/addEmergencyDamage", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newDamage),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Запис додано!");
-        clearFormInputs("emergency-damage-form");
-        loadEmergencyDamageTable(); 
-      } else {
-        alert("Не вдалося додати запис.");
-      }
+    fetch("http://localhost:5000/addEmergencyDamage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newDamage),
     })
-    .catch((error) => console.error("Помилка при додаванні аварійного збитку:", error));
-});
-
-
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Запис додано!");
+          clearFormInputs("emergency-damage-form");
+          loadEmergencyDamageTable();
+        } else {
+          alert("Не вдалося додати запис.");
+        }
+      })
+      .catch((error) =>
+        console.error("Помилка при додаванні аварійного збитку:", error)
+      );
+  });
 
 // Додавання нового підприємства
 document
@@ -1171,7 +1336,7 @@ document
       .then((data) => {
         if (data.success) {
           alert("Підприємство додано!");
-          clearFormInputs("enterprise-form"); 
+          clearFormInputs("enterprise-form");
           loadEnterpriseTable(); // Перезавантажуємо таблицю підприємств
         } else {
           alert("Не вдалося додати підприємство.");
@@ -1192,9 +1357,11 @@ document
       mpc: document.querySelector("#new-mpc").value,
       rfc: document.querySelector("#new-rfc").value,
       sf: document.querySelector("#new-sf").value,
-      specificEmissions: document.querySelector("#new-specific-emissions").value,
+      specificEmissions: document.querySelector("#new-specific-emissions")
+        .value,
       tax: document.querySelector("#new-tax").value,
-      hazardCoefficient: document.querySelector("#new-hazard-coefficient").value,
+      hazardCoefficient: document.querySelector("#new-hazard-coefficient")
+        .value,
       Kn: document.querySelector("#new-Kn").value,
     };
 
@@ -1283,4 +1450,3 @@ function deleteEnterprise(id) {
     })
     .catch((error) => console.error("Error deleting enterprise:", error));
 }
-

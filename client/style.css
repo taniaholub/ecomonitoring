@@ -56,6 +56,14 @@ center {
   width: 100%;
 }
 
+#search-input {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 10 10px;
+  box-sizing: border-box;
+}
+
 form {
   width: 100%;
   max-width: 800px;

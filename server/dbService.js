@@ -454,7 +454,6 @@ class DbService {
     }
   }
   
-
   // Сортування за полем
   async sortByField(field) {
     try {
@@ -488,7 +487,7 @@ class DbService {
   async getPollutantFactors(pollutantName) {
     try {
       return new Promise((resolve, reject) => {
-        const query = `SELECT SF, RFC, Tax, HazardCoefficient, SpecificEmissions, Kn FROM Pollutant WHERE PollutantName = ?`;
+        const query = `SELECT SF, RFC, Tax, HazardCoefficient, SpecificEmissions, Kn, MPC FROM Pollutant WHERE PollutantName = ?`;
         connection.query(query, [pollutantName], (err, results) => {
           if (results.length > 0) {
             resolve(results[0]);
